@@ -14,7 +14,13 @@ To set up the development environment, you are required Python 3 and pip\
     Back end api can be accessed by default using `localhost:9000` (port is defaulted to 9000)
     
 ### API Endpoints
-to be defined
+
+#### 1. estimatePrice: the estimate price for Car Properties provided
+#### 2. estimateCar: the estimate car[list?] for a price given
+#### 3. User Authenication (Tokening)
+#### 4. Car Statistics
+#### 5. Cars Sold yearly
+#### 6. API Statistics
 
 # Client Setup
 Hello world, to be implemented
