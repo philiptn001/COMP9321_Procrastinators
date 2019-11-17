@@ -7,6 +7,10 @@ from flask import Flask, request, g
 from flask_restplus import Resource, Api, abort, fields, inputs, reqparse
 from itsdangerous import SignatureExpired, JSONWebSignatureSerializer, BadSignature
 from API.util import methods
+from flask_cors import CORS
+
+# enable CORS
+CORS(app, resources={r'/*': {'origins': '*'}})
 
 # would require to implement a database for the analytics API as well as users login
 DATABASE = './cars.db'
@@ -38,6 +42,7 @@ class AuthenticationToken:
 SECRET_KEY = "A SECRET KEY; USUALLY A VERY LONG RANDOM STRING"
 expires_in = 6000
 auth = AuthenticationToken(SECRET_KEY, expires_in)
+
 
 app = Flask(__name__)
 api = Api(app, authorizations={
@@ -106,7 +111,12 @@ class EstimatePrice(Resource):
     @api.doc(description="Gives user a recommended price to sell the car")
     def get(self):
         return {"message": "hope you land a good deal"}
-
+@api.route('/estimateCar')
+class EstimateCar(Resource):
+    @api.response(200, 'Successful')
+    @api.doc(description="Gives user a recommended car [list] for a given budget")
+    def get(self):
+      return {"message": "to be implemented"}
 
 @api.route('/signup')
 class SignUp():
@@ -115,13 +125,14 @@ class SignUp():
     def post(self):
         return {"message": "User created!"}
 
+      
 @api.route('/usageStats')
 class ApiUsage():
     @api.response(200,'Successful')
+    @requires_auth
     @api.doc(description="API usage statistics")
     def get(self):
         return {"message":"everything you need for JSCharts"}
-
 
 if __name__ == '__main__':
     # preprocessing csv here
