@@ -108,6 +108,13 @@ class EstimatePrice(Resource):
         return {"message": "hope you land a good deal"}
 
 
+@api.route('/signup')
+class SignUp():
+    @api.response(200,'user created')
+    @api.doc(description='creating a user')
+    def post(self):
+        return {"message": "User created!"}
+
 @api.route('/usageStats')
 class ApiUsage():
     @api.response(200,'Successful')
