@@ -1,12 +1,15 @@
 import json
+import pandas as pd
+import sqlite3
 from functools import wraps
 from time import time
-import pandas as pd
-from flask import Flask, request
+from flask import Flask, request, g
 from flask_restplus import Resource, Api, abort, fields, inputs, reqparse
 from itsdangerous import SignatureExpired, JSONWebSignatureSerializer, BadSignature
 from API.util import methods
 
+# would require to implement a database for the analytics API as well as users login
+DATABASE = './cars.db'
 
 class AuthenticationToken:
     def __init__(self, secret_key, expires_in):
@@ -98,11 +101,19 @@ class Token(Resource):
 
 
 @api.route('/estimatePrice')
-class estimatePrice(Resource):
+class EstimatePrice(Resource):
     @api.response(200, 'Successful')
     @api.doc(description="Gives user a recommended price to sell the car")
     def get(self):
         return {"message": "hope you land a good deal"}
+
+
+@api.route('/usageStats')
+class ApiUsage():
+    @api.response(200,'Successful')
+    @api.doc(description="API usage statistics")
+    def get(self):
+        return {"message":"everything you need for JSCharts"}
 
 
 if __name__ == '__main__':
