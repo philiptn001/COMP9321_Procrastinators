@@ -101,7 +101,6 @@ class Token(Resource):
 class estimatePrice(Resource):
     @api.response(200, 'Successful')
     @api.doc(description="Gives user a recommended price to sell the car")
-    @requires_auth
     def get(self):
         return {"message": "hope you land a good deal"}
 
