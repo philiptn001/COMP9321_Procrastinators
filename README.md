@@ -21,6 +21,7 @@ To set up the development environment, you are required Python 3 and pip\
 #### 4. Car Statistics
 #### 5. Cars Sold yearly
 #### 6. API Statistics
+#### 7. Swagger Documentation
 
 # Client Setup
 Hello world, to be implemented
