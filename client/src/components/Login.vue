@@ -28,7 +28,7 @@
     <v-card-actions>
       <v-row align="center">
         <v-col class="text-center">
-          <v-btn dark tile color="#5C6BC0" width="40%" class="mt-n6" >Login</v-btn>
+          <v-btn @click="getKey(username,password)" dark tile color="#5C6BC0" width="40%" class="mt-n6" >Login</v-btn>
         </v-col>
       </v-row>
     </v-card-actions>
@@ -42,6 +42,7 @@
 
 
 <script>
+import axios from 'axios';
 
 export default {
 
@@ -52,7 +53,21 @@ export default {
       showPassword: false,
     };
   },
-  /* methods: {
+   methods: {
+     getKey(username, password) {
+       console.log(username, password)
+        axios.get('http://localhost:9000/token', {
+          params: {
+  username: this.username,
+  password: this.password,
+          }
+})
+.then((response) => {
+  console.log(response);
+}, (error) => {
+  console.log(error);
+});
+     }
     /* getMessage() {
       const path = "http://localhost:9000/landing";
       axios
@@ -65,7 +80,7 @@ export default {
           console.error(error);
         }); */
     //}
-  //},
+  },
   //created() {
     //this.getMessage();
   //} */
