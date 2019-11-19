@@ -3,16 +3,31 @@ import pandas as pd
 import sqlite3
 from functools import wraps
 from time import time
-from flask import Flask, request, g
+from flask import Flask, request, g, app, jsonify
 from flask_restplus import Resource, Api, abort, fields, inputs, reqparse
 from itsdangerous import SignatureExpired, JSONWebSignatureSerializer, BadSignature
 from flask_cors import CORS
-
 
 # would require to implement a database for the analytics API as well as users login
 DATABASE = './cars.db'
 
 
+# ----------------Database function
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(DATABASE)
+    return db
+
+
+def query_db(query, args=(), one=False):
+    cur = get_db().execute(query, args)
+    rv = cur.fetchall()
+    cur.close()
+    return (rv[0] if rv else None) if one else rv
+
+
+# ------------------Token Functions
 class AuthenticationToken:
     def __init__(self, secret_key, expires_in):
         self.secret_key = secret_key
@@ -37,6 +52,7 @@ class AuthenticationToken:
         return info['username']
 
 
+# ----------------------app set up procedure
 SECRET_KEY = "A SECRET KEY; USUALLY A VERY LONG RANDOM STRING"
 expires_in = 6000
 auth = AuthenticationToken(SECRET_KEY, expires_in)
@@ -58,6 +74,7 @@ api = Api(app, authorizations={
 CORS(app, resources={r'/*': {'origins': '*'}})
 
 
+# ----------------------authentication accesses for end point
 def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -81,7 +98,7 @@ def requires_auth(f):
 
 def requires_admin(f):
     @wraps(f)
-    def decorated(*args,**kwargs):
+    def decorated(*args, **kwargs):
         token = request.headers.get('AUTH-TOKEN')
         if not token:
             abort(401, 'Authentication token is missing')
@@ -109,6 +126,7 @@ credential_parser.add_argument('username', type=str)
 credential_parser.add_argument('password', type=str)
 
 
+# --------------------------API end points
 @api.route('/token')
 class Token(Resource):
     @api.response(200, 'Successful')
@@ -159,7 +177,13 @@ class ApiUsage(Resource):
         return {"message": "everything you need for JSCharts"}
 
 
-
+@api.route('/flush')
+class database(Resource):
+    @api.response(200, 'successful')
+    def get(self):
+        db = query_db('select * from users')
+        print(db)
+        return db;
 
 
 if __name__ == '__main__':
