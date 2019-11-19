@@ -9,8 +9,6 @@ from itsdangerous import SignatureExpired, JSONWebSignatureSerializer, BadSignat
 from API.util import methods
 from flask_cors import CORS
 
-# enable CORS
-CORS(app, resources={r'/*': {'origins': '*'}})
 
 # would require to implement a database for the analytics API as well as users login
 DATABASE = './cars.db'
@@ -57,6 +55,9 @@ api = Api(app, authorizations={
           title="Cars Dataset",  # Documentation Title
           description="This is just a simple example to show how publish data as a service.")  # Documentation Description
 
+# enable CORS
+CORS(app, resources={r'/*': {'origins': '*'}})
+
 
 def requires_auth(f):
     @wraps(f)
@@ -68,11 +69,32 @@ def requires_auth(f):
 
         try:
             user = auth.validate_token(token)
+            print(user);
         except SignatureExpired as e:
             abort(401, e.message)
         except BadSignature as e:
             abort(401, e.message)
 
+        return f(*args, **kwargs)
+
+    return decorated
+
+
+def requires_admin(f):
+    @wraps(f)
+    def decorated(*args,**kwargs):
+        token = request.headers.get('AUTH-TOKEN')
+        if not token:
+            abort(401, 'Authentication token is missing')
+        try:
+            user = auth.validate_token(token)
+            if user not in db:
+                abort(403, 'Access Forbidden Error')
+            print(user)
+        except SignatureExpired as e:
+            abort(401, e.message)
+        except BadSignature as e:
+            abort(401, e.message)
         return f(*args, **kwargs)
 
     return decorated
