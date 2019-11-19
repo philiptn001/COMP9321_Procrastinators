@@ -225,5 +225,5 @@ def preprocessing():
 if __name__ == '__main__':
     # preprocessing csv here
     df = preprocessing()
-    print(df.head(10).to_string())
+    #print(df.head(10).to_string())
     app.run(port=9000, debug=True);  # debug to be turned off  when deployed

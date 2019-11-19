@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Login from '../components/Login.vue';
 import Register from '../components/Register.vue';
+import LandingPage from '../components/LandingPage.vue';
 
 
 Vue.use(VueRouter);
@@ -16,6 +17,11 @@ const routes = [
     path: '/register',
     name: 'register',
     component: Register,
+  },
+  {
+    path: '/landing',
+    name: 'landing',
+    component: LandingPage,
   },
 
 ];
