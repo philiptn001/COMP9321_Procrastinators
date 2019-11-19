@@ -144,5 +144,4 @@ class ApiUsage(Resource):
 
 if __name__ == '__main__':
     # preprocessing done in data_preprocessing directory, and the final csv after preprocessing is preprocessed.csv
-
     app.run(port=9000, debug=True);  # debug to be turned off  when deployed
