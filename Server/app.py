@@ -6,7 +6,6 @@ from time import time
 from flask import Flask, request, g
 from flask_restplus import Resource, Api, abort, fields, inputs, reqparse
 from itsdangerous import SignatureExpired, JSONWebSignatureSerializer, BadSignature
-from API.util import methods
 from flask_cors import CORS
 
 
@@ -160,6 +159,9 @@ class ApiUsage(Resource):
         return {"message": "everything you need for JSCharts"}
 
 
+
+
+
 if __name__ == '__main__':
-    # preprocessing csv here
+    # preprocessing done in data_preprocessing directory, and the final csv after preprocessing is preprocessed.csv
     app.run(port=9000, debug=True);  # debug to be turned off  when deployed

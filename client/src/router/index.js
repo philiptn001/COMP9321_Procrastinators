@@ -1,15 +1,29 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import HomePage from '../components/home_page.vue';
+import Login from '../components/Login.vue';
+import Register from '../components/Register.vue';
+import LandingPage from '../components/LandingPage.vue';
+
 
 Vue.use(VueRouter);
 
 const routes = [
   {
-    path: '/landing',
-    name: 'home',
-    component: HomePage,
+    path: '/',
+    name: 'login',
+    component: Login,
   },
+  {
+    path: '/register',
+    name: 'register',
+    component: Register,
+  },
+  {
+    path: '/landing',
+    name: 'landing',
+    component: LandingPage,
+  },
+
 ];
 
 const router = new VueRouter({
