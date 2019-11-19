@@ -86,7 +86,9 @@ if __name__ == '__main__':
 
 
    # print(main_df.head(5).to_string())
-    main_df.to_csv("preprocessed.csv", index=False)
+
+    #print(main_df.count)
+    main_df.to_csv("Server/data_preprocessing/preprocessed.csv", index=False)
 
 
 
