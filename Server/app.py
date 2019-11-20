@@ -135,7 +135,6 @@ class Token(Resource):
     @api.expect(credential_parser, validate=True)
     def get(self):
         args = credential_parser.parse_args()
-
         username = args.get('username')
         password = args.get('password')
         #query database here, if username, then query if password is same  if nested if is true then return token
@@ -170,9 +169,30 @@ class EstimateCar(Resource):
 class SignUp(Resource):
     @api.response(200, 'user created')
     @api.doc(description='creating a user')
+    @api.expect(credential_parser, validate=True)
     def post(self):
+        args = credential_parser.parse_args()
+        username = args.get('username')
+        password = args.get('password')
 
+        if(query_db('select * from users where username = ?',[username], one=True) != None):
+            return{"Error": "User already exist!"}, 400
+        db=query_db('insert into Users (username, password) values (?,?)', [username, password])
+        db=query_db('select * from Users where username = ?', [username], one=True)
+        print(db)
+        Base = get_db()
+        Base.commit()
+        # insert into database using query_db
         return {"message": "User created!"}
+
+
+@api.route('/grantAdmin')
+class GrantAdmin(Resource):
+    @api.response(200, 'Successful')
+    @requires_admin
+    @api.doc(description="turn a user into admin")
+    def post(self):
+        return {"message":"in your dreams ;)"}
 
 
 @api.route('/usageStats')
