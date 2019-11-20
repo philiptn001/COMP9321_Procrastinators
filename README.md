@@ -24,5 +24,15 @@ To set up the development environment, you are required Python 3 and pip\
 #### 7. Swagger Documentation
 
 # Client Setup
-Hello world, to be implemented
-    
+Instructions within client folder
+
+# User Logins for authentications
+#####sample user login
+username: user\
+password: password
+
+#####sample admin
+username: admin\
+password: abc123
+
+
