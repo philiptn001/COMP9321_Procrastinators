@@ -152,14 +152,24 @@ class EstimatePrice(Resource):
         return {"message": "hope you land a good deal"}
 
 
-@api.route('/estimateCar/<int:budget>')
+@api.route('/estimateCar/<int:budget>/<brand>')
 class EstimateCar(Resource):
     @api.response(200, 'Successful')
     @api.doc(description="Gives user a recommended car [list] for a given budget")
-    def get(self,budget):
-        rec = df['price'].isin(range(budget-200,budget+200))
-        df_rec = df.loc[rec,['model','brand','price']]
-        df_rec.reset_index(drop=True, inplace=True)
+    # def get(self,budget):
+    #     rec = df['price'].isin(range(budget-200,budget+200))
+    #     df_rec = df.loc[rec,['model','brand','price']]
+    #     df_rec.reset_index(drop=True, inplace=True)
+    #     json_str=df_rec.to_json(orient='split')
+    #     ds = json.loads(json_str)
+    #     return ds
+
+    def get(self,budget, brand):
+        rec = df['price'].isin(range(budget-50,budget+50))
+        df_rec = df.loc[rec,['model','brand', 'yearOfRegistration']]
+        df_rec = df_rec.loc[df_rec['model'] != 'other']
+        df_rec = df_rec.loc[df_rec['brand'] == brand]       
+        df_rec = df_rec[['model', 'brand', 'yearOfRegistration' ]].drop_duplicates()
         json_str=df_rec.to_json(orient='split')
         ds = json.loads(json_str)
         return ds
@@ -210,7 +220,8 @@ class ApiUsage(Resource):
 
 if __name__ == '__main__':
     # preprocessing done in data_preprocessing directory, and the final csv after preprocessing is preprocessed.csv
-    df = pd.read_csv("../preprocessed.csv")
+    #df = pd.read_csv("Server/data_preprocessing/preprocessed.csv")
+    df = pd.read_csv("./data_preprocessing/preprocessed.csv")
     df['price'] = df['price'].astype('int')
-    df.set_index('name',inplace=True)
+  #  df.set_index('name',inplace=True)
     app.run(port=9000, debug=True);  # debug to be turned off  when deployed
