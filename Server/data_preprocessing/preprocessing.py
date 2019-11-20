@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 if __name__ == '__main__':
-    file = 'Server/data_preprocessing/autos.csv'
+    file = 'autos.csv'
     df = pd.read_csv(file, encoding="latin-1")
 
     #dropping the columns that we don't need
@@ -60,14 +60,14 @@ if __name__ == '__main__':
 
 
     # Reading the second csv
-    df_rel = pd.read_csv('Server/data_preprocessing/car_reliability.csv')
+    df_rel = pd.read_csv('car_reliability.csv')
 
     df_rel = df_rel.drop(df_rel.columns[3:], axis=1)
     df_rel = df_rel.drop(df_rel.columns[0], axis=1)
 
     # Reading the third csv
 
-    df_avgcost = pd.read_csv('Server/data_preprocessing/avgrepaircost.csv')
+    df_avgcost = pd.read_csv('avgrepaircost.csv')
     df_avgcost = df_avgcost.drop(df_avgcost.columns[0], axis=1)
 
 
@@ -89,7 +89,7 @@ if __name__ == '__main__':
    # print(main_df.head(5).to_string())
 
     #print(main_df.count)
-    main_df.to_csv("Server/data_preprocessing/preprocessed.csv", index=False)
+    main_df.to_csv("preprocessed.csv", index=False)
 
 
 
