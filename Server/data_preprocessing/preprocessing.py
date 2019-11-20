@@ -2,11 +2,11 @@ import pandas as pd
 import numpy as np
 
 if __name__ == '__main__':
-    file = 'autos.csv'
+    file = 'Server/data_preprocessing/autos.csv'
     df = pd.read_csv(file, encoding="latin-1")
 
     #dropping the columns that we don't need
-    cols= [0, 1, 2, 3, 5, 16, 17, 18, 19]
+    cols= [0, 2, 3, 5, 16, 17, 18, 19]
     df = df.drop(df.columns[cols], axis=1)
 
     #changing NaN values to 'other' or 'unknown' based on context
@@ -21,6 +21,10 @@ if __name__ == '__main__':
 
     #Removing invalid vehicle registration years
     df = df[(df["yearOfRegistration"] >= 1950) & (df["yearOfRegistration"] <= 2019)]
+    df = df[(df["price"] >= 100.0)]
+    df = df[(df["powerPS"] >= 50.0)]
+    df = df[(df["gearbox"] != "unknown")]
+
     df["monthOfRegistration"].replace([0, 12], [1, 11], inplace=True)
 
 
@@ -56,14 +60,14 @@ if __name__ == '__main__':
 
 
     # Reading the second csv
-    df_rel = pd.read_csv('car_reliability.csv')
+    df_rel = pd.read_csv('Server/data_preprocessing/car_reliability.csv')
 
     df_rel = df_rel.drop(df_rel.columns[3:], axis=1)
     df_rel = df_rel.drop(df_rel.columns[0], axis=1)
 
     # Reading the third csv
 
-    df_avgcost = pd.read_csv('avgrepaircost.csv')
+    df_avgcost = pd.read_csv('Server/data_preprocessing/avgrepaircost.csv')
     df_avgcost = df_avgcost.drop(df_avgcost.columns[0], axis=1)
 
 
@@ -81,7 +85,11 @@ if __name__ == '__main__':
 
     main_df = main_df.dropna()
 
-    main_df.to_csv("preprocessed.csv", index=False)
+
+   # print(main_df.head(5).to_string())
+
+    #print(main_df.count)
+    main_df.to_csv("Server/data_preprocessing/preprocessed.csv", index=False)
 
 
 
