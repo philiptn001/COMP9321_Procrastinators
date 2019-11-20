@@ -157,7 +157,7 @@ class EstimatePrice(Resource):
 class EstimateCar(Resource):
     @api.response(200, 'Successful')
     @api.doc(description="Gives user a recommended car [list] for a given budget")
-    def get(self,price):
+    def get(self,budget):
         rec = df['price'].isin(range(budget-200,budget+200))
         df_rec = df.loc[rec,['model','brand','price']]
         df_rec.reset_index(drop=True, inplace=True)
@@ -190,8 +190,7 @@ class ApiUsage(Resource):
 
 if __name__ == '__main__':
     # preprocessing done in data_preprocessing directory, and the final csv after preprocessing is preprocessed.csv
-    df = pd.read_csv("../preprocessed.csv",nrows=35)
+    df = pd.read_csv("../preprocessed.csv")
     df['price'] = df['price'].astype('int')
     df.set_index('name',inplace=True)
-    budget=6500
     app.run(port=9000, debug=True);  # debug to be turned off  when deployed
