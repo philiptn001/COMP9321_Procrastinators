@@ -6,7 +6,7 @@ if __name__ == '__main__':
     df = pd.read_csv(file, encoding="latin-1")
 
     #dropping the columns that we don't need
-    cols= [0, 2, 3, 5, 16, 17, 18, 19]
+    cols= [0, 1, 2, 3, 5, 16, 17, 18, 19]
     df = df.drop(df.columns[cols], axis=1)
 
     #changing NaN values to 'other' or 'unknown' based on context
@@ -86,10 +86,8 @@ if __name__ == '__main__':
     main_df = main_df.dropna()
 
 
-   # print(main_df.head(5).to_string())
-
     #print(main_df.count)
-    main_df.to_csv("preprocessed.csv", index=False)
+   # main_df.to_csv("preprocessed.csv", index=False)
 
 
 
