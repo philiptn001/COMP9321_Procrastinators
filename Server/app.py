@@ -148,7 +148,7 @@ class ApiUsage(Resource):
 
 if __name__ == '__main__':
     # preprocessing done in data_preprocessing directory, and the final csv after preprocessing is preprocessed.csv
-    df = pd.read_csv("preprocessed.csv",nrows=35)
+    df = pd.read_csv("preprocessed.csv")
     df['price'] = df['price'].astype('int')
     df.set_index('name',inplace=True)
     app.run(port=9000, debug=True);  # debug to be turned off  when deployed
