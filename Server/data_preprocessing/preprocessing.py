@@ -23,6 +23,7 @@ if __name__ == '__main__':
     df = df[(df["yearOfRegistration"] >= 1950) & (df["yearOfRegistration"] <= 2019)]
     df = df[(df["price"] >= 100.0)]
     df = df[(df["powerPS"] >= 50.0)]
+    df = df[(df["gearbox"] != "unknown")]
 
     df["monthOfRegistration"].replace([0, 12], [1, 11], inplace=True)
 
