@@ -104,7 +104,8 @@ def requires_admin(f):
             abort(401, 'Authentication token is missing')
         try:
             user = auth.validate_token(token)
-            if user not in db:
+            checkadmin = query_db('select username from Admins where username = ?', [user], one=True);
+            if user not in checkadmin:
                 abort(403, 'Access Forbidden Error')
             print(user)
         except SignatureExpired as e:
@@ -137,12 +138,12 @@ class Token(Resource):
 
         username = args.get('username')
         password = args.get('password')
-
-        if username == 'admin' and password == 'admin':
-            return {"token": auth.generate_token(username)}
-
+        #query database here, if username, then query if password is same  if nested if is true then return token
+        checkuser = query_db('select password from Users where username = ?', [username], one=True);
+        if checkuser != None:
+            if password == checkuser[0]:
+                return {"token": auth.generate_token(username)}
         return {"message": "authorization has been refused for those credentials."}, 401
-
 
 @api.route('/estimatePrice')
 class EstimatePrice(Resource):
@@ -156,8 +157,8 @@ class EstimatePrice(Resource):
 class EstimateCar(Resource):
     #Still doing this function, its not working yet.
     @api.response(200, 'Successful')
-    @api.doc(description="Gives user a recommended car [list] for a given budget")a
-    def get(self,price):
+    @api.doc(description="Gives user a recommended car [list] for a given budget")
+    def get(self, budget):
         #budget = 1000
         list = []
         for index,row in df.iterrows():
@@ -167,9 +168,9 @@ class EstimateCar(Resource):
 
         df_data = pd.DataFrame(list)
         #print(df_data[['model','brand']].to_string())
-
         json_str=df_data.to_json()
         ds=json.loads(json_str)
+
         return {"message": "to be implemented"}
 
 
@@ -184,24 +185,19 @@ class SignUp(Resource):
 @api.route('/usageStats')
 class ApiUsage(Resource):
     @api.response(200, 'Successful')
-    @requires_auth
+    @requires_admin
     @api.doc(description="API usage statistics")
     def get(self):
-        return {"message": "everything you need for JSCharts"}
+        db = query_db('select * from apiusage')
+        packet = jsonify(db)
+        return packet;
 
 
-@api.route('/flush')
-class database(Resource):
-    @api.response(200, 'successful')
-    def get(self):
-        db = query_db('select * from users')
-        print(db)
-        return db;
 
 
 if __name__ == '__main__':
     # preprocessing done in data_preprocessing directory, and the final csv after preprocessing is preprocessed.csv
-    df = pd.read_csv("preprocessed.csv",nrows=35)
+    df = pd.read_csv("../preprocessed.csv",nrows=35)
     df['price'] = df['price'].astype('int')
     df.set_index('name',inplace=True)
     budget = 6500
