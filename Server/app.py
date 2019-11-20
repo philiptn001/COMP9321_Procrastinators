@@ -155,23 +155,15 @@ class EstimatePrice(Resource):
 
 @api.route('/estimateCar/<int:budget>')
 class EstimateCar(Resource):
-    #Still doing this function, its not working yet.
     @api.response(200, 'Successful')
     @api.doc(description="Gives user a recommended car [list] for a given budget")
-    def get(self, budget):
-        #budget = 1000
-        list = []
-        for index,row in df.iterrows():
-            #if row['price'] == 1500:
-            if budget-500 <= row['price'] >= budget+500:
-                list.append(row)
-
-        df_data = pd.DataFrame(list)
-        #print(df_data[['model','brand']].to_string())
-        json_str=df_data.to_json()
-        ds=json.loads(json_str)
-
-        return {"message": "to be implemented"}
+    def get(self,price):
+        rec = df['price'].isin(range(budget-200,budget+200))
+        df_rec = df.loc[rec,['model','brand','price']]
+        df_rec.reset_index(drop=True, inplace=True)
+        json_str=df_rec.to_json(orient='split')
+        ds = json.loads(json_str)
+        return ds
 
 
 @api.route('/signup')
@@ -201,5 +193,5 @@ if __name__ == '__main__':
     df = pd.read_csv("../preprocessed.csv",nrows=35)
     df['price'] = df['price'].astype('int')
     df.set_index('name',inplace=True)
-    budget = 6500
+    budget=6500
     app.run(port=9000, debug=True);  # debug to be turned off  when deployed
