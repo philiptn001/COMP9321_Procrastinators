@@ -1,6 +1,7 @@
 import json
 import pandas as pd
 import sqlite3
+import pickle
 from functools import wraps
 from time import time
 from flask import Flask, request, g, app, jsonify

@@ -11,13 +11,11 @@ enc = pickle.loads(f.read())
 
 x = enc.transform([df])
 X = []
-# print(x)
 X.append(x.toarray()[0].tolist())
-# print(X)
 X = X[0] + powerPS + kilometer
 f = open('model', 'rb')
 regressor = pickle.loads(f.read())
 
 y_pred = regressor.predict([X])
 
-print(y_pred)
+print(str(y_pred))
