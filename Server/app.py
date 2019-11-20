@@ -11,6 +11,13 @@ from flask_cors import CORS
 # would require to implement a database for the analytics API as well as users login
 DATABASE = './cars.db'
 
+#---------------ML loading model and encoder
+f = open('./ml_model/encoder', 'rb')
+enc = pickle.loads(f.read())
+
+f = open('./ml_model/model', 'rb')
+regressor = pickle.loads(f.read())
+
 
 # ----------------Database function
 def get_db():
@@ -144,12 +151,37 @@ class Token(Resource):
                 return {"token": auth.generate_token(username)}
         return {"message": "authorization has been refused for those credentials."}, 401
 
+
+
+price_predict_parser = reqparse.RequestParser()
+price_predict_parser.add_argument('brand', type=str)
+price_predict_parser.add_argument('model', type=str)
+price_predict_parser.add_argument('vehicleType', type=str)
+price_predict_parser.add_argument('yearOfRegistration', type=str)
+price_predict_parser.add_argument('gearbox', type=str)
+price_predict_parser.add_argument('powerPS', type=int)
+price_predict_parser.add_argument('kilometer', type=int)
+price_predict_parser.add_argument('monthOfRegistration', type=str)
+price_predict_parser.add_argument('fuelType', type=str)
+price_predict_parser.add_argument('notRepairedDamage', type=str)
+
 @api.route('/estimatePrice')
 class EstimatePrice(Resource):
     @api.response(200, 'Successful')
     @api.doc(description="Gives user a recommended price to sell the car")
+    @api.expect(price_predict_parser, validate=True)
     def get(self):
-        return {"message": "hope you land a good deal"}
+        car = price_predict_parser.parse_args()
+        df = [car.get('vehicleType'), car.get('yearOfRegistration'), car.get('gearbox'), car.get('model'), car.get('monthOfRegistration'), car.get('fuelType'), car.get('brand'), car.get('notRepairedDamage') ]
+        print(df)
+        powerPS = car.get('powerPS')
+        kilometer = car.get('kilometer')
+        x = enc.transform([df])
+        X = []
+        X.append(x.toarray()[0].tolist())
+        X = X[0] + [powerPS] + [kilometer]
+        y_pred = regressor.predict([X])
+        return {"Predicted_Price": y_pred[0]}, 200
 
 
 @api.route('/estimateCar/<int:budget>/<brand>')
