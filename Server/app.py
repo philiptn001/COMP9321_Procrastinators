@@ -162,7 +162,6 @@ price_predict_parser.add_argument('yearOfRegistration', type=str)
 price_predict_parser.add_argument('gearbox', type=str)
 price_predict_parser.add_argument('powerPS', type=int)
 price_predict_parser.add_argument('kilometer', type=int)
-price_predict_parser.add_argument('monthOfRegistration', type=str)
 price_predict_parser.add_argument('fuelType', type=str)
 price_predict_parser.add_argument('notRepairedDamage', type=str)
 
@@ -173,7 +172,7 @@ class EstimatePrice(Resource):
     @api.expect(price_predict_parser, validate=True)
     def get(self):
         car = price_predict_parser.parse_args()
-        df = [car.get('vehicleType'), car.get('yearOfRegistration'), car.get('gearbox'), car.get('model'), car.get('monthOfRegistration'), car.get('fuelType'), car.get('brand'), car.get('notRepairedDamage') ]
+        df = [car.get('vehicleType'), car.get('yearOfRegistration'), car.get('gearbox'), car.get('model'), car.get('fuelType'), car.get('brand'), car.get('notRepairedDamage') ]
         print(df)
         powerPS = car.get('powerPS')
         kilometer = car.get('kilometer')

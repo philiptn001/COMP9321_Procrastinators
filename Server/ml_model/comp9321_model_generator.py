@@ -6,13 +6,13 @@ import pandas as pd
 import pickle
 file = '../data_preprocessing/preprocessed.csv'
 df = pd.read_csv(file)
-print(df.head())
 
 y = df["price"]
 df = df.drop("price", axis=1)
-df = df.drop("name", axis=1)
+df = df.drop("monthOfRegistration", axis=1)
 df = df.drop("Average Repair Cost", axis=1)
 df = df.drop("Reliability Index", axis=1)
+print(df.head())
 powerPS = df["powerPS"]
 df = df.drop("powerPS", axis=1)
 kilometer = df["kilometer"]
