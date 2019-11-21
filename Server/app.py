@@ -8,6 +8,7 @@ from flask import Flask, request, g, app, jsonify
 from flask_restplus import Resource, Api, abort, fields, inputs, reqparse
 from itsdangerous import SignatureExpired, JSONWebSignatureSerializer, BadSignature
 from flask_cors import CORS
+import flask_monitoringdashboard as dashboard
 
 # would require to implement a database for the analytics API as well as users login
 DATABASE = './cars.db'
@@ -66,6 +67,8 @@ expires_in = 6000
 auth = AuthenticationToken(SECRET_KEY, expires_in)
 
 app = Flask(__name__)
+dashboard.bind(app)
+
 api = Api(app, authorizations={
     'API-KEY': {
         'type': 'apiKey',
