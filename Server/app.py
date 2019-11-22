@@ -13,7 +13,7 @@ import flask_monitoringdashboard as dashboard
 # would require to implement a database for the analytics API as well as users login
 DATABASE = './cars.db'
 
-#---------------ML loading model and encoder
+# ---------------ML loading model and encoder
 f = open('./ml_model/encoder', 'rb')
 enc = pickle.loads(f.read())
 
@@ -106,7 +106,7 @@ def requires_auth(f):
 
     return decorated
 
-
+# might delete if we can't do for flask monitoring dashboard, then use config.cfg as config and edit there
 def requires_admin(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -139,14 +139,18 @@ credential_parser.add_argument('password', type=str)
 username_parser = reqparse.RequestParser()
 username_parser.add_argument('username', type=str)
 
+
 # --------------------------API end points
-@api.route('/User')
+@api.route('/user')
 class User(Resource):
     @api.response(200, 'user details get')
     @api.doc(description='retrieve username and password')
     @api.expect(username_parser, validate=True)
     def get(self):
-        return {'message' : 'returns a username and password and their unique id'}
+        users = query_db('select user_id, username from Users ')
+        users = jsonify(users)
+        return users
+
     @api.response(201, 'user created')
     @api.doc(description='creating a user')
     @api.expect(credential_parser, validate=True)
@@ -154,37 +158,69 @@ class User(Resource):
         args = credential_parser.parse_args()
         username = args.get('username')
         password = args.get('password')
-
-        if (query_db('select * from users where username = ?', [username], one=True) != None):
+        if (query_db('select * from Users where username = ?', [username], one=True) != None):
             return {"Error": "User already exist!"}, 400
         db = query_db('insert into Users (username, password) values (?,?)', [username, password])
         db = query_db('select * from Users where username = ?', [username], one=True)
         print(db)
         Base = get_db()
         Base.commit()
-        # insert into database using query_db
         return {"message": "User created!"}
+
     @api.response(200, 'User Grant Admin Access')
     @api.doc(description='gives a user admin status')
-    @api.expect(username_parser,validate=True)
+    @api.expect(username_parser, validate=True)
     def put(self):
         args = username_parser.parse_args()
         username = args.get('username')
-        if (query_db('select * from users where username = ?', [username], one=True) != None):
+        if (query_db('select * from Users where username = ?', [username], one=True) != None):
             return {"Error": "User doesn't exist!"}, 400
-        return {'message':'to be implemented'}
+        else:
+            db = query_db('insert into Users (username) values (?)', [username], one=True)
+            Base = get_db()
+            Base.commit()
+        # ----------------------------------------raise user to admin here
+        return {'message': 'Access granted'}
+
     @api.response(200, 'User deleted')
     @api.doc(description='deletes a user register from records')
-    @api.expect(username_parser,validate=True)
+    @api.expect(username_parser, validate=True)
     @requires_auth
     def delete(self):
         args = username_parser.parse_args()
         username = args.get('username')
-        # delete user here
+        if query_db('select * from Users where username = ?', [username], one=True) is None:
+            return {"Error": "User does not exist!"}, 400
+        else:
+            query_db('delete from Users where username = ?',[username], one=True)
+            if query_db('select * from Admins where username = ?', [username], one=True) is not None:
+                query_db('delete from Admins where username = ?',[username], one=True)
+            Base = get_db()
+            Base.commit()
+        # ----------------------------------------------------------------------delete user here
         return {'message': 'user has been deleted'}
+
+
+@api.route('/user/<int:user_id>')
+class FindUser(Resource):
+    @api.response(200, 'User successfully return')
+    @api.doc(description='returns a username according to their id')
+    def get(self, user_id):
+        userinfo = query_db('select user_id, username from Users where user_id = ?',[user_id], one=True)
+        userinfo = jsonify(userinfo)
+        return userinfo
 
 @api.route('/session')
 class Session(Resource):
+    @api.response(200, 'successfully get current session')
+    @api.doc(description='gets the current user login')
+    def get(self):
+        token = request.headers.get('AUTH-TOKEN')
+        # due to programming  by contract, the session should be validated by @require_auth and always have a valid
+        # session
+        user = auth.validate_token(token)
+        return {'username': user}
+
     @api.response(201, 'Session created Successfully')
     @api.doc(description="Generates a authentication token for the user session")
     @api.expect(credential_parser, validate=True)
@@ -194,14 +230,11 @@ class Session(Resource):
         password = args.get('password')
         # query database here, if username, then query if password is same  if nested if is true then return token
         checkuser = query_db('select password from Users where username = ?', [username], one=True);
-        if checkuser != None:
+        if checkuser is not None:
             if password == checkuser[0]:
                 return {"token": auth.generate_token(username)}
         return {"message": "authorization has been refused for those credentials."}, 401
-    @api.response(200, 'Session deleted')
-    @api.doc(description='Logout for the user')
-    def delete(self):
-        return {'message': 'to be implemented'}
+
 
 price_predict_parser = reqparse.RequestParser()
 price_predict_parser.add_argument('brand', type=str)
@@ -214,6 +247,7 @@ price_predict_parser.add_argument('kilometer', type=int)
 price_predict_parser.add_argument('fuelType', type=str)
 price_predict_parser.add_argument('notRepairedDamage', type=str)
 
+# feature 1
 @api.route('/estimatePrice')
 class EstimatePrice(Resource):
     @api.response(200, 'Successful')
@@ -221,7 +255,8 @@ class EstimatePrice(Resource):
     @api.expect(price_predict_parser, validate=True)
     def get(self):
         car = price_predict_parser.parse_args()
-        df = [car.get('vehicleType'), car.get('yearOfRegistration'), car.get('gearbox'), car.get('model'), car.get('fuelType'), car.get('brand'), car.get('notRepairedDamage') ]
+        df = [car.get('vehicleType'), car.get('yearOfRegistration'), car.get('gearbox'), car.get('model'),
+              car.get('fuelType'), car.get('brand'), car.get('notRepairedDamage')]
         print(df)
         powerPS = car.get('powerPS')
         kilometer = car.get('kilometer')
@@ -232,7 +267,7 @@ class EstimatePrice(Resource):
         y_pred = regressor.predict([X])
         return {"Predicted_Price": y_pred[0]}, 200
 
-
+# feature 2
 @api.route('/estimateCar/<int:budget>/<brand>')
 class EstimateCar(Resource):
     @api.response(200, 'Successful')
@@ -245,16 +280,24 @@ class EstimateCar(Resource):
     #     ds = json.loads(json_str)
     #     return ds
 
-    def get(self,budget, brand):
-        rec = df['price'].isin(range(budget-50,budget+50))
-        df_rec = df.loc[rec,['model','brand', 'yearOfRegistration']]
+    def get(self, budget, brand):
+        rec = df['price'].isin(range(budget - 50, budget + 50))
+        df_rec = df.loc[rec, ['model', 'brand', 'yearOfRegistration']]
         df_rec = df_rec.loc[df_rec['model'] != 'other']
-        df_rec = df_rec.loc[df_rec['brand'] == brand]       
-        df_rec = df_rec[['model', 'brand', 'yearOfRegistration' ]].drop_duplicates()
-        json_str=df_rec.to_json(orient='split')
+        df_rec = df_rec.loc[df_rec['brand'] == brand]
+        df_rec = df_rec[['model', 'brand', 'yearOfRegistration']].drop_duplicates()
+        json_str = df_rec.to_json(orient='split')
         ds = json.loads(json_str)
         return ds
 
+
+# feature 3
+@api.route('/reliability')
+class Reliability(Resource):
+    @api.response(200, 'Successful')
+    @api.doc(desciption='')
+    def get(self):
+        return{'message':'return a brand'}
 
 @api.route('/usageStats')
 class ApiUsage(Resource):
@@ -267,12 +310,10 @@ class ApiUsage(Resource):
         return packet;
 
 
-
-
 if __name__ == '__main__':
     # preprocessing done in data_preprocessing directory, and the final csv after preprocessing is preprocessed.csv
-    #df = pd.read_csv("Server/data_preprocessing/preprocessed.csv")
+    # df = pd.read_csv("Server/data_preprocessing/preprocessed.csv")
     df = pd.read_csv("./data_preprocessing/preprocessed.csv")
     df['price'] = df['price'].astype('int')
-  #  df.set_index('name',inplace=True)
+    #  df.set_index('name',inplace=True)
     app.run(port=9000, debug=True);  # debug to be turned off  when deployed
