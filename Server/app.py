@@ -136,26 +136,72 @@ credential_model = api.model('credential', {
 credential_parser = reqparse.RequestParser()
 credential_parser.add_argument('username', type=str)
 credential_parser.add_argument('password', type=str)
-
+username_parser = reqparse.RequestParser()
+username_parser.add_argument('username', type=str)
 
 # --------------------------API end points
-@api.route('/token')
-class Token(Resource):
-    @api.response(200, 'Successful')
-    @api.doc(description="Generates a authentication token")
-    @api.expect(credential_parser, validate=True)
+@api.route('/User')
+class User(Resource):
+    @api.response(200, 'user details get')
+    @api.doc(description='retrieve username and password')
+    @api.expect(username_parser, validate=True)
     def get(self):
+        return {'message' : 'returns a username and password and their unique id'}
+    @api.response(201, 'user created')
+    @api.doc(description='creating a user')
+    @api.expect(credential_parser, validate=True)
+    def post(self):
         args = credential_parser.parse_args()
         username = args.get('username')
         password = args.get('password')
-        #query database here, if username, then query if password is same  if nested if is true then return token
+
+        if (query_db('select * from users where username = ?', [username], one=True) != None):
+            return {"Error": "User already exist!"}, 400
+        db = query_db('insert into Users (username, password) values (?,?)', [username, password])
+        db = query_db('select * from Users where username = ?', [username], one=True)
+        print(db)
+        Base = get_db()
+        Base.commit()
+        # insert into database using query_db
+        return {"message": "User created!"}
+    @api.response(200, 'User Grant Admin Access')
+    @api.doc(description='gives a user admin status')
+    @api.expect(username_parser,validate=True)
+    def put(self):
+        args = username_parser.parse_args()
+        username = args.get('username')
+        if (query_db('select * from users where username = ?', [username], one=True) != None):
+            return {"Error": "User doesn't exist!"}, 400
+        return {'message':'to be implemented'}
+    @api.response(200, 'User deleted')
+    @api.doc(description='deletes a user register from records')
+    @api.expect(username_parser,validate=True)
+    @requires_auth
+    def delete(self):
+        args = username_parser.parse_args()
+        username = args.get('username')
+        # delete user here
+        return {'message': 'user has been deleted'}
+
+@api.route('/session')
+class Session(Resource):
+    @api.response(201, 'Session created Successfully')
+    @api.doc(description="Generates a authentication token for the user session")
+    @api.expect(credential_parser, validate=True)
+    def post(self):
+        args = credential_parser.parse_args()
+        username = args.get('username')
+        password = args.get('password')
+        # query database here, if username, then query if password is same  if nested if is true then return token
         checkuser = query_db('select password from Users where username = ?', [username], one=True);
         if checkuser != None:
             if password == checkuser[0]:
                 return {"token": auth.generate_token(username)}
         return {"message": "authorization has been refused for those credentials."}, 401
-
-
+    @api.response(200, 'Session deleted')
+    @api.doc(description='Logout for the user')
+    def delete(self):
+        return {'message': 'to be implemented'}
 
 price_predict_parser = reqparse.RequestParser()
 price_predict_parser.add_argument('brand', type=str)
@@ -208,36 +254,6 @@ class EstimateCar(Resource):
         json_str=df_rec.to_json(orient='split')
         ds = json.loads(json_str)
         return ds
-
-
-@api.route('/signup')
-class SignUp(Resource):
-    @api.response(200, 'user created')
-    @api.doc(description='creating a user')
-    @api.expect(credential_parser, validate=True)
-    def post(self):
-        args = credential_parser.parse_args()
-        username = args.get('username')
-        password = args.get('password')
-
-        if(query_db('select * from users where username = ?',[username], one=True) != None):
-            return{"Error": "User already exist!"}, 400
-        db=query_db('insert into Users (username, password) values (?,?)', [username, password])
-        db=query_db('select * from Users where username = ?', [username], one=True)
-        print(db)
-        Base = get_db()
-        Base.commit()
-        # insert into database using query_db
-        return {"message": "User created!"}
-
-
-@api.route('/grantAdmin')
-class GrantAdmin(Resource):
-    @api.response(200, 'Successful')
-    @requires_admin
-    @api.doc(description="turn a user into admin")
-    def post(self):
-        return {"message":"in your dreams ;)"}
 
 
 @api.route('/usageStats')
