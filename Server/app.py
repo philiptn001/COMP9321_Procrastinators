@@ -14,9 +14,11 @@ import flask_monitoringdashboard as dashboard
 DATABASE = './cars.db'
 
 # ---------------ML loading model and encoder
+#f = open('Server/ml_model/encoder', 'rb')
 f = open('./ml_model/encoder', 'rb')
 enc = pickle.loads(f.read())
 
+#f = open('Server/ml_model/model', 'rb')
 f = open('./ml_model/model', 'rb')
 regressor = pickle.loads(f.read())
 
@@ -295,9 +297,15 @@ class EstimateCar(Resource):
 @api.route('/reliability')
 class Reliability(Resource):
     @api.response(200, 'Successful')
-    @api.doc(desciption='')
+    @api.doc(desciption='Returns the top 10 most reliable car brands with their reliability indices')
     def get(self):
-        return{'message':'return a brand'}
+        rel_df = df[['brand','Reliability Index']]
+        rel_df = rel_df[['brand', 'Reliability Index']].drop_duplicates()     
+        rel_df = rel_df.nsmallest(10,'Reliability Index')
+        print(rel_df.to_string())
+        json_str = rel_df.to_json(orient='records')
+        ds = json.loads(json_str)
+        return ds, 200
 
 @api.route('/usageStats')
 class ApiUsage(Resource):
