@@ -14,9 +14,11 @@ import flask_monitoringdashboard as dashboard
 DATABASE = './cars.db'
 
 # ---------------ML loading model and encoder
+#f = open('Server/ml_model/encoder', 'rb')
 f = open('./ml_model/encoder', 'rb')
 enc = pickle.loads(f.read())
 
+#f = open('Server/ml_model/model', 'rb')
 f = open('./ml_model/model', 'rb')
 regressor = pickle.loads(f.read())
 
@@ -257,7 +259,7 @@ class EstimatePrice(Resource):
         car = price_predict_parser.parse_args()
         df = [car.get('vehicleType'), car.get('yearOfRegistration'), car.get('gearbox'), car.get('model'),
               car.get('fuelType'), car.get('brand'), car.get('notRepairedDamage')]
-        print(df)
+       # print(df)
         powerPS = car.get('powerPS')
         kilometer = car.get('kilometer')
         x = enc.transform([df])
@@ -286,7 +288,7 @@ class EstimateCar(Resource):
         df_rec = df_rec.loc[df_rec['model'] != 'other']
         df_rec = df_rec.loc[df_rec['brand'] == brand]
         df_rec = df_rec[['model', 'brand', 'yearOfRegistration']].drop_duplicates()
-        json_str = df_rec.to_json(orient='split')
+        json_str = df_rec.to_json(orient='records')
         ds = json.loads(json_str)
         return ds
 

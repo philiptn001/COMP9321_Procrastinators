@@ -39,8 +39,10 @@
               </v-card>
 
               <v-card>
-                    <v-card-title v-if="result"> The estimated price for the car you searched for is: {{estimateCarPrice}} </v-card-title>
-                </v-card>
+                <v-card-title
+                  v-if="result"
+                >The estimated price for the car you searched for is: {{estimateCarPrice}}</v-card-title>
+              </v-card>
             </v-container>
 
             <v-container v-if="i==2">
@@ -56,7 +58,7 @@
                 <v-card-subtitle
                   v-for="(obj,i) in estimateCarResult"
                   :key="i"
-                >{{obj[1]}} {{obj[0]}}, {{obj[2]}} model</v-card-subtitle>
+                >{{obj.brand}} {{obj.model}}, {{obj.yearOfRegistration}} model</v-card-subtitle>
               </v-card>
             </v-container>
 
@@ -81,7 +83,7 @@ export default {
       km: null,
       selectedTypeML: "",
       estimateCarResult: "",
-      estimateCarPrice:'',
+      estimateCarPrice: "",
       selectedModelML: "",
       selectedGearML: "",
       priceRange: "",
@@ -89,7 +91,7 @@ export default {
       selectedFuelML: "",
       repairedDamageML: "",
       models: [],
-      result:false,
+      result: false,
       price: 0,
       tab: null,
       tabs: 4,
@@ -202,47 +204,32 @@ export default {
         )
         .then(response => {
           console.log("resp is", response);
-          this.estimateCarResult = response.data.data;
-        
+          this.estimateCarResult = response.data;
         });
     },
 
     estimatePrice() {
-      console.log(
-        this.selectedBrandML,
-        this.selectedModelML,
-        this.selectedTypeML,
-        this.selectedGearML,
-        this.year,
-        this.power,
-        this.km,
-        this.selectedFuelML,
-        this.repairedDamageML
-      );
-
-
-        axios.get('http://localhost:9000/estimatePrice', {
-  params: {
-          brand: this.selectedBrandML,
-          model: this.selectedModelML,
-          vehicleType: this.selectedTypeML,
-          yearOfRegistration: this.year,
-          gearbox: this.selectedGearML,
-          powerPS: this.power,
-          kilometer: this.km,
-          fuelType: this.selectedFuelML,
-          notRepairedDamage: this.repairedDamageML,  
-  }
-}).then(response => {
-  console.log("checking ml api", response)
-  this.estimateCarPrice = response.data.Predicted_Price;
-    this.result = true;
-          
-     })
+      axios
+        .get("http://localhost:9000/estimatePrice", {
+          params: {
+            brand: this.selectedBrandML,
+            model: this.selectedModelML,
+            vehicleType: this.selectedTypeML,
+            yearOfRegistration: this.year,
+            gearbox: this.selectedGearML,
+            powerPS: this.power,
+            kilometer: this.km,
+            fuelType: this.selectedFuelML,
+            notRepairedDamage: this.repairedDamageML
+          }
+        })
+        .then(response => {
+          this.estimateCarPrice = response.data.Predicted_Price;
+          this.result = true;
+        });
     }
   }
 };
-
 </script>
 <style scoped>
 </style>

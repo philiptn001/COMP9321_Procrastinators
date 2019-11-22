@@ -47,7 +47,7 @@
         </v-form>
       </v-card-text>
       <v-card-actions>
-        <v-btn tile dark color="#5C6BC0" width="40%" class="mx-auto mt-2" >Sign Up</v-btn>
+        <v-btn tile dark color="#5C6BC0" width="40%" class="mx-auto mt-2" @click="signUp()">Sign Up</v-btn>
       </v-card-actions>
       <p class="text-center pb-2 subtitle-2 font-weight-light">
         Already a member?
@@ -59,6 +59,7 @@
 
 
 <script>
+import axios from "axios";
 export default {
   data() {
     return {
@@ -73,17 +74,38 @@ export default {
       ],
       nameRules: [v => !!v || "Field is required"],
       password: "",
-      passwordConfirm: "",
       showPassword: false,
-      showPasswordConfim: false
     };
   },
   created() {
     console.log("checking");
     // this.getMessage();
-  }
+  },
 
-  /* methods: {
+  methods: {
+      signUp(){
+        console.log(this.username, this.password);
+      axios
+        .post("http://localhost:9000/user", {
+          params: {
+            username: this.username,
+            password: this.password
+          }
+        })
+        .then(
+          response => {
+            console.log(response);
+            if(response.status == 200){
+              this.$router.push({
+                  name: "login",
+      });
+            }
+          },
+          error => {
+            console.log(error);
+          }
+        );
+      }
     /* getMessage() {
       const path = "http://localhost:9000/landing";
       axios
@@ -99,6 +121,6 @@ export default {
   //},
   //created() {
   //this.getMessage();
-  //} */
+  } 
 };
 </script>
