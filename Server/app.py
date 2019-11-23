@@ -1,14 +1,20 @@
 import json
+import io
 import pandas as pd
+from matplotlib import pyplot as plt
+import matplotlib
 import sqlite3
 import pickle
 from functools import wraps
 from time import time
-from flask import Flask, request, g, app, jsonify
+from flask import Flask, request, g, app, jsonify, send_file
 from flask_restplus import Resource, Api, abort, fields, inputs, reqparse
 from itsdangerous import SignatureExpired, JSONWebSignatureSerializer, BadSignature
 from flask_cors import CORS
 import flask_monitoringdashboard as dashboard
+from flask import Response
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 # would require to implement a database for the analytics API as well as users login
 DATABASE = './cars.db'
@@ -302,10 +308,11 @@ class Reliability(Resource):
         rel_df = df[['brand','Reliability Index']]
         rel_df = rel_df[['brand', 'Reliability Index']].drop_duplicates()     
         rel_df = rel_df.nsmallest(10,'Reliability Index')
-        print(rel_df.to_string())
-        json_str = rel_df.to_json(orient='records')
-        ds = json.loads(json_str)
-        return ds, 200
+        rel_df.plot(kind='bar',x='brand',y='Reliability Index')
+        plt.savefig('reliability.png')   
+        filename = 'reliability.png'
+        return send_file(filename, mimetype='image/png')
+
 
 @api.route('/usageStats')
 class ApiUsage(Resource):
