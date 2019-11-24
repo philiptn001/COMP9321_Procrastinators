@@ -350,14 +350,14 @@ class reliability_avgprice(Resource):
         data_brand_2 = rel_df.loc[rel_df['brand'] == user_brand_2]
         reli_brand_1 = int(data_brand_1["Reliability Index"])
         reli_brand_2 = int(data_brand_2["Reliability Index"])
-        avg_repair_brand_1 = int(data_brand_1["Average Repair Cost"])
-        avg_repair_brand_2 = int(data_brand_2["Average Repair Cost"])
+        avg_repair_brand_1 = float(data_brand_1["Average Repair Cost"])
+        avg_repair_brand_2 = float(data_brand_2["Average Repair Cost"])
 
         message = {
-            'Brand_1_reliability': reli_brand_1),
-            'Brand_1_avgcost': avg_repair_brand_1),
-            'Brand_2_reliability': reli_brand_2),
-            'Brand_2_avgcost': avg_repair_brand_2)
+            'Brand_1_reliability': reli_brand_1,
+            'Brand_1_avgcost': avg_repair_brand_1,
+            'Brand_2_reliability': reli_brand_2,
+            'Brand_2_avgcost': avg_repair_brand_2
         }
         message = jsonify(message)
 
