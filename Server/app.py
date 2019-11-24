@@ -20,11 +20,11 @@ from matplotlib.figure import Figure
 DATABASE = './cars.db'
 
 # ---------------ML loading model and encoder
-#f = open('Server/ml_model/encoder', 'rb')
+# f = open('Server/ml_model/encoder', 'rb')
 f = open('./ml_model/encoder', 'rb')
 enc = pickle.loads(f.read())
 
-#f = open('Server/ml_model/model', 'rb')
+# f = open('Server/ml_model/model', 'rb')
 f = open('./ml_model/model', 'rb')
 regressor = pickle.loads(f.read())
 
@@ -114,6 +114,7 @@ def requires_auth(f):
 
     return decorated
 
+
 # might delete if we can't do for flask monitoring dashboard, then use config.cfg as config and edit there
 def requires_admin(f):
     @wraps(f)
@@ -200,9 +201,9 @@ class User(Resource):
         if query_db('select * from Users where username = ?', [username], one=True) is None:
             return {"Error": "User does not exist!"}, 400
         else:
-            query_db('delete from Users where username = ?',[username], one=True)
+            query_db('delete from Users where username = ?', [username], one=True)
             if query_db('select * from Admins where username = ?', [username], one=True) is not None:
-                query_db('delete from Admins where username = ?',[username], one=True)
+                query_db('delete from Admins where username = ?', [username], one=True)
             Base = get_db()
             Base.commit()
         # ----------------------------------------------------------------------delete user here
@@ -214,9 +215,10 @@ class FindUser(Resource):
     @api.response(200, 'User successfully return')
     @api.doc(description='returns a username according to their id')
     def get(self, user_id):
-        userinfo = query_db('select user_id, username from Users where user_id = ?',[user_id], one=True)
+        userinfo = query_db('select user_id, username from Users where user_id = ?', [user_id], one=True)
         userinfo = jsonify(userinfo)
         return userinfo
+
 
 @api.route('/session')
 class Session(Resource):
@@ -255,6 +257,7 @@ price_predict_parser.add_argument('kilometer', type=int)
 price_predict_parser.add_argument('fuelType', type=str)
 price_predict_parser.add_argument('notRepairedDamage', type=str)
 
+
 # feature 1
 @api.route('/price')
 class EstimatePrice(Resource):
@@ -265,7 +268,7 @@ class EstimatePrice(Resource):
         car = price_predict_parser.parse_args()
         df = [car.get('vehicleType'), car.get('gearbox'), car.get('model'),
               car.get('fuelType'), car.get('brand'), car.get('notRepairedDamage')]
-       # print(df)
+        # print(df)
         powerPS = car.get('powerPS')
         kilometer = car.get('kilometer')
         yearOfRegistration = car.get('yearOfRegistration')
@@ -275,6 +278,7 @@ class EstimatePrice(Resource):
         X = X[0] + [yearOfRegistration] + [powerPS] + [kilometer]
         y_pred = regressor.predict([X])
         return {"Predicted_Price": y_pred[0]}, 200
+
 
 # feature 2
 @api.route('/cars/<int:budget>/<brand>')
@@ -306,11 +310,11 @@ class Reliability(Resource):
     @api.response(200, 'Successful')
     @api.doc(desciption='Returns the top 10 most reliable car brands with their reliability indices')
     def get(self):
-        rel_df = df[['brand','Reliability Index']]
-        rel_df = rel_df[['brand', 'Reliability Index']].drop_duplicates()     
-        rel_df = rel_df.nsmallest(10,'Reliability Index')
-        rel_df.plot(kind='bar',x='brand',y='Reliability Index')
-        plt.savefig('reliability.png')   
+        rel_df = df[['brand', 'Reliability Index']]
+        rel_df = rel_df[['brand', 'Reliability Index']].drop_duplicates()
+        rel_df = rel_df.nsmallest(10, 'Reliability Index')
+        rel_df.plot(kind='bar', x='brand', y='Reliability Index')
+        plt.savefig('reliability.png')
         filename = 'reliability.png'
         return send_file(filename, mimetype='image/png')
 
@@ -318,6 +322,8 @@ class Reliability(Resource):
 # feature 4
 reliability_avgprice_parser = reqparse.RequestParser()
 reliability_avgprice_parser.add_argument('brand', type=str)
+
+
 @api.route('/reliability_avgrepair')
 class reliability_avgprice(Resource):
     @api.response(200, 'Successful')
@@ -327,7 +333,7 @@ class reliability_avgprice(Resource):
         car = reliability_avgprice_parser.parse_args()
         user_brand = car.get('brand')
         rel_df = df[['brand', 'Reliability Index', 'Average Repair Cost']]
-        rel_df = rel_df[['brand', 'Reliability Index','Average Repair Cost']].drop_duplicates()
+        rel_df = rel_df[['brand', 'Reliability Index', 'Average Repair Cost']].drop_duplicates()
         reliability_index = rel_df.loc[rel_df['brand'] == user_brand]
         print(rel_df)
         message = {
@@ -337,17 +343,28 @@ class reliability_avgprice(Resource):
         message = jsonify(message)
         return message
 
-#feature 5
-@api.route('/loan/<int:principal>/<int:term>/<float:interest>')
+
+# feature 5
+loan_parser = reqparse.RequestParser()
+loan_parser.add_argument('principal', type=int)
+loan_parser.add_argument('term', type=int)
+loan_parser.add_argument('interest', type=float)
+
+
+@api.route('/loans')
 class Loan(Resource):
     @api.response(200, 'Successful')
+    @api.expect(loan_parser, validate=True)
     @api.doc(description='GIves user the amount he needs to pay every month for loan payment')
     def get(self):
+        args = loan_parser.parse_args()
+        interest = args.get('interest')
+        budget = args.get('principal')
+        term = args.get('term')
         interest = interest / 100
         amount = (budget * (interest / 12)) / (1 - (1 + interest/12) ** -term)
-        print(amount)
-        amt = json.dumps(amount)
-        return amt
+        print(interest, budget, term)
+        return amount
 
 
 @api.route('/statistics')
