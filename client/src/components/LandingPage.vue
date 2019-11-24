@@ -253,7 +253,6 @@ export default {
   },
   created() {
     this.token_login = this.$route.params.token;
-    console.log("token is", this.token_login);
   },
 
   watch: {
@@ -278,7 +277,6 @@ export default {
   },
   methods: {
     carListSearch() {
-      // console.log(this.priceRange, this.selectedBrand);
       axios
         .get(
           `http://localhost:9000/cars/${this.priceRange}/${this.selectedBrand}`,
@@ -290,7 +288,6 @@ export default {
         )
 
         .then(response => {
-          console.log("resp is", response);
           this.estimateCarResult = response.data;
         })
         .catch(function(error) {
@@ -370,9 +367,7 @@ export default {
           responseType: "arraybuffer"
         })
         .then(response => {
-          console.log("inside response");
           this.pic_load = true;
-
           let blob = new Blob([response.data], {
             type: response.headers["content-type"]
           });
@@ -399,7 +394,6 @@ export default {
           }
         })
         .then(response => {
-          console.log("Result", response);
           this.comparison = true;
           this.result_compare = response.data;
         })
