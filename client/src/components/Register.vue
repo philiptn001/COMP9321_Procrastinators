@@ -86,7 +86,7 @@ export default {
       signUp(){
         console.log(this.username, this.password);
       axios
-        .post("http://localhost:9000/user", {
+        .post("http://localhost:9000/user", null, {
           params: {
             username: this.username,
             password: this.password
