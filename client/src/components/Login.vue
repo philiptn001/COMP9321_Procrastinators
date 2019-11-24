@@ -62,7 +62,7 @@ export default {
     getKey() {
       console.log(this.username, this.password);
       axios
-        .post("http://localhost:9000/session", {
+        .post(`http://localhost:9000/session`,null, {
           params: {
             username: this.username,
             password: this.password
@@ -71,6 +71,13 @@ export default {
         .then(
           response => {
             console.log(response);
+            if(response.status == 200) {
+              this.token = response.data.token
+              this.$router.push({
+                name: "landing",
+      });
+
+            }
           },
           error => {
             console.log(error);

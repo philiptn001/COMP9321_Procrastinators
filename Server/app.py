@@ -327,7 +327,7 @@ class ApiUsage(Resource):
 
 if __name__ == '__main__':
     # preprocessing done in data_preprocessing directory, and the final csv after preprocessing is preprocessed.csv
-    # df = pd.read_csv("Server/data_preprocessing/preprocessed.csv")
+    #df = pd.read_csv("Server/data_preprocessing/preprocessed.csv")
     df = pd.read_csv("./data_preprocessing/preprocessed.csv")
     df['price'] = df['price'].astype('int')
     #  df.set_index('name',inplace=True)
