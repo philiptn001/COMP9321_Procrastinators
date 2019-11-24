@@ -21,12 +21,12 @@ import seaborn as sns
 DATABASE = './cars.db'
 
 # ---------------ML loading model and encoder
-#f = open('Server/ml_model/encoder', 'rb')
-f = open('./ml_model/encoder', 'rb')
+f = open('Server/ml_model/encoder', 'rb')
+#f = open('./ml_model/encoder', 'rb')
 enc = pickle.loads(f.read())
 
-#f = open('Server/ml_model/model', 'rb')
-f = open('./ml_model/model', 'rb')
+f = open('Server/ml_model/model', 'rb')
+#f = open('./ml_model/model', 'rb')
 regressor = pickle.loads(f.read())
 
 
@@ -261,8 +261,8 @@ price_predict_parser.add_argument('notRepairedDamage', type=str)
 
 # feature 1
 @api.route('/price')
-class EstimatePrice(Resource):
-    @api.response(200, 'Successful')
+class Price(Resource):
+    @api.response(200, 'Success')
     @api.doc(description="Gives user a recommended price to sell the car")
     @api.expect(price_predict_parser, validate=True)
     @requires_auth
@@ -270,7 +270,6 @@ class EstimatePrice(Resource):
         car = price_predict_parser.parse_args()
         df = [car.get('vehicleType'), car.get('gearbox'), car.get('model'),
               car.get('fuelType'), car.get('brand'), car.get('notRepairedDamage')]
-        # print(df)
         powerPS = car.get('powerPS')
         kilometer = car.get('kilometer')
         yearOfRegistration = car.get('yearOfRegistration')
@@ -284,18 +283,10 @@ class EstimatePrice(Resource):
 
 # feature 2
 @api.route('/cars/<int:budget>/<brand>')
-class EstimateCar(Resource):
-    @api.response(200, 'Successful')
+class Cars(Resource):
+    @api.response(200, 'Success')
     @api.doc(description="Gives user a recommended car [list] for a given budget")
     @requires_auth
-    # def get(self,budget):
-    #     rec = df['price'].isin(range(budget-200,budget+200))
-    #     df_rec = df.loc[rec,['model','brand','price']]
-    #     df_rec.reset_index(drop=True, inplace=True)
-    #     json_str=df_rec.to_json(orient='split')
-    #     ds = json.loads(json_str)
-    #     return ds
-
     def get(self, budget, brand):
         rec = df['price'].isin(range(budget - 50, budget + 50))
         df_rec = df.loc[rec, ['model', 'brand', 'yearOfRegistration']]
@@ -322,11 +313,6 @@ class Reliability(Resource):
         rel_df['colors'] = ['red' if x >100 else 'green' for x in rel_df['Reliability Index']]
         rel_df.rename(columns={"Reliability Index": "reliability"})
         rel_df.rename(columns={'Reliability Index':'reliability'}, inplace=True)
-        #json_str = rel_df.to_json(orient='records')
-        #ds = json.loads(json_str)
-        #return ds
-        #rel_df.plot(kind='bar',x='brand',y='Reliability Index')
-        #plt.xticks(rotation=90)
         matplotlib.use('Agg')
         plt.figure(figsize=(14,10), dpi= 80)
         plt.hlines(y=rel_df.brand, xmin=0, xmax=rel_df.reliability, color=rel_df.colors, alpha=0.4, linewidth=5)
@@ -350,9 +336,9 @@ reliability_avgprice_parser = reqparse.RequestParser()
 reliability_avgprice_parser.add_argument('Brand_1', type=str)
 reliability_avgprice_parser.add_argument('Brand_2', type=str)
 
-@api.route('/reliability_avgrepair')
-class reliability_avgprice(Resource):
-    @api.response(200, 'Successful')
+@api.route('/graphcomparisons')
+class Graphcomparisons(Resource):
+    @api.response(200, 'Success')
     @api.expect(reliability_avgprice_parser, validate=True)
     @api.doc(desciption='Gives details on reliability index and average repair cost')
     @requires_auth
@@ -369,30 +355,44 @@ class reliability_avgprice(Resource):
         avg_repair_brand_1 = float(data_brand_1["Average Repair Cost"])
         avg_repair_brand_2 = float(data_brand_2["Average Repair Cost"])
 
+        reliability = [reli_brand_1, reli_brand_2]
+        repair = [avg_repair_brand_1, avg_repair_brand_2]
+        index = [user_brand_1, user_brand_2]
+        rel_df = pd.DataFrame({'Reliability': reliability,'Average Repair Cost': repair}, index=index)
+        ax = rel_df.plot.bar(rot=0, color=['lightpink', 'skyblue'])
+        ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),
+          ncol=3, fancybox=True)
+        plt.xlabel('Brand')
+        plt.savefig('reliability_compare.png')  
+        filename = '../reliability_compare.png'
+        return send_file(filename, mimetype='image/png')
+
+
+@api.route('/comparisons')
+class Comparisons(Resource):
+    @api.response(200, 'Success')
+    @api.expect(reliability_avgprice_parser, validate=True)
+    @api.doc(desciption='Gives details on reliability index and average repair cost')
+    @requires_auth
+    def get(self):
+        car = reliability_avgprice_parser.parse_args()
+        user_brand_1 = car.get('Brand_1')
+        user_brand_2 = car.get('Brand_2')
+        rel_df = df[['brand', 'Reliability Index', 'Average Repair Cost']]
+        rel_df = rel_df[['brand', 'Reliability Index', 'Average Repair Cost']].drop_duplicates()
+        data_brand_1 = rel_df.loc[rel_df['brand'] == user_brand_1]
+        data_brand_2 = rel_df.loc[rel_df['brand'] == user_brand_2]
+        reli_brand_1 = int(data_brand_1["Reliability Index"])
+        reli_brand_2 = int(data_brand_2["Reliability Index"])
+        avg_repair_brand_1 = float(data_brand_1["Average Repair Cost"])
+        avg_repair_brand_2 = float(data_brand_2["Average Repair Cost"])
         message = {
             'Brand_1_reliability': reli_brand_1,
             'Brand_1_avgcost': avg_repair_brand_1,
             'Brand_2_reliability': reli_brand_2,
             'Brand_2_avgcost': avg_repair_brand_2
         }
-        message = jsonify(message)
-
-        # final_reliability_df = pd.DataFrame({'Brand':[user_brand_1, user_brand_2], 'Reliability_Index':[reli_brand_1, reli_brand_2]})
-        # final_reliability_df.plot(kind='bar',x='Brand',y='Reliability_Index')
-        # final_avg_repair_df = pd.DataFrame({'Brand':[user_brand_1, user_brand_2], 'Average_Repair_Cost':[reli_brand_1, reli_brand_2]})
-        # final_avg_repair_df.plot(kind='bar',x='Brand',y='Average_Repair_Cost')
-        # plt.xticks(rotation=90)
-        
-        # plt.plot([user_brand_1, user_brand_2], [avg_repair_brand_1, avg_repair_brand_2], 'b', label='avgcost')
-        # plt.plot([user_brand_1, user_brand_2], [reli_brand_1, reli_brand_2], 'r', label='reliability')
-        # plt.title('title')
-        # plt.ylabel('ylabel')
-        # plt.xlabel('xlabel')
-        # plt.legend()
-        
-        # plt.savefig('reliability_compare.png')  
-        # filename = './reliability_compare.png'
-        # return send_file(filename, mimetype='image/png')
+        message = jsonify(message) 
         return message
 
 
@@ -405,7 +405,7 @@ loan_parser.add_argument('interest', type=float)
 
 @api.route('/loans')
 class Loan(Resource):
-    @api.response(200, 'Successful')
+    @api.response(200, 'Success')
     @api.expect(loan_parser, validate=True)
     @api.doc(description='Gives user the amount he needs to pay every month for loan payment')
     @requires_auth
@@ -422,7 +422,7 @@ class Loan(Resource):
 
 @api.route('/statistics')
 class ApiUsage(Resource):
-    @api.response(200, 'Successful')
+    @api.response(200, 'Success')
     @requires_admin
     @api.doc(description="API usage statistics")
     def get(self):
@@ -433,8 +433,8 @@ class ApiUsage(Resource):
 
 if __name__ == '__main__':
     # preprocessing done in data_preprocessing directory, and the final csv after preprocessing is preprocessed.csv
-    #df = pd.read_csv("Server/data_preprocessing/preprocessed.csv")
-    df = pd.read_csv("./data_preprocessing/preprocessed.csv")
+    df = pd.read_csv("Server/data_preprocessing/preprocessed.csv")
+    #df = pd.read_csv("./data_preprocessing/preprocessed.csv")
     df['price'] = df['price'].astype('int')
     #  df.set_index('name',inplace=True)
     app.run(port=9000, debug=True);  # debug to be turned off  when deployed
