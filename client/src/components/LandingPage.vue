@@ -107,8 +107,12 @@
 
 <script>
 import axios from "axios";
-export default {
 
+const props = {
+  token: String
+};
+export default {
+  props: props,
   data() {
     return {
       imageLoad: false,
@@ -144,6 +148,7 @@ export default {
       price: 0,
       tab: null,
       tabs: 5,
+      token_login: "random token",
       tab_vals: [
         "Estimate car price",
         "Find cars",
@@ -256,7 +261,10 @@ export default {
     };
   },
   created() {
-    //console.log("checking");
+    
+      this.token_login = this.token
+      console.log("token is", this.token_login)
+    
   },
 
   watch: {
@@ -311,7 +319,7 @@ export default {
 
     estimatePrice() {
       axios
-        .get("http://localhost:9000/estimatePrice", {
+        .get("http://localhost:9000/price", {
           params: {
             brand: this.selectedBrandML,
             model: this.selectedModelML,
@@ -322,7 +330,10 @@ export default {
             kilometer: this.km,
             fuelType: this.selectedFuelML,
             notRepairedDamage: this.repairedDamageML
-          }
+          },
+          headers: { 
+               'AUTH-TOKEN'  : "eMiJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJjcmVhdGlvbl90aW1lIjoxNTc0NTY4ODk5LjA3NzMwOH0.4JIZJYgNsrDgWVVp_zboy7fAGRr2zz8h006xJdq4fr6lF6vw_4b_SjXHQ6ORtDu01IBX6kOchw0k9oDft70Prg"
+          },
         })
         .then(response => {
           this.estimateCarPrice = response.data.Predicted_Price;
@@ -352,12 +363,14 @@ export default {
         .get("http://localhost:9000/loans", {
           params: {
            principal: this.principal,
-            term : this.loan,
+            term : this.term,
             interest : this.interest
           }
         })
         .then(response => {
           console.log("Result", response)
+          this.monthly = response.data
+          this.loan = true
 
         });
     },

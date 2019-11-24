@@ -75,6 +75,10 @@ export default {
               this.token = response.data.token
               this.$router.push({
                 name: "landing",
+                params: {
+                  token: this.token,
+        },
+                
       });
 
             }
