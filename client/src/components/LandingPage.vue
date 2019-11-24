@@ -66,7 +66,25 @@
             <v-btn tile color="orange" @click="reliability()"> Top 10 most reliable cars </v-btn>
 
             </v-container>
-            <h1 v-if="i==4">{{i}}</h1>
+            
+            <h1 v-if="i==4"></h1>
+
+
+            <v-container v-if="i==5">
+               <v-select :items="brandscomparison" v-model="selectedBrandComparison" label="Brand"></v-select>
+              
+ 
+              <v-btn tile color="orange" @click="compare()">Compare</v-btn>
+                <v-card>
+                  <v-card-title v-if="comparison">
+                        Average cost is :{{result_compare.avgcost}}, Reliability Index is : {{result_compare.reliability}}
+                  </v-card-title>
+ 
+                </v-card>
+ 
+            </v-container>
+
+
           </v-card-text>
         </v-card>
       </v-tab-item>
@@ -85,9 +103,12 @@ export default {
       power: null,
       km: null,
       selectedTypeML: "",
+      selectedBrandComparison: "",
       estimateCarResult: "",
       estimateCarPrice: "",
       selectedModelML: "",
+      comparison:false,
+      result_compare : [],
       selectedGearML: "",
       priceRange: "",
       selectedBrand: "",
@@ -98,7 +119,7 @@ export default {
       result: false,
       price: 0,
       tab: null,
-      tabs: 4,
+      tabs: 5,
       tab_vals: [
         "Estimate car price",
         "Find cars",
@@ -148,6 +169,40 @@ export default {
         "cabrio",
         "station wagon",
         "bus"
+      ],
+      brandscomparison: [
+        "Audi",
+        "Jeep",
+        "Volkswagen",
+        "Skoda",
+        "BMW",
+        "Peugeot",
+        "Mazda",
+        "Nissan",
+        "Renault",
+        "Ford",
+        "Mercedes-Benz",
+        "Seat",
+        "Citroen",
+        "Honda",
+        "Fiat",
+        "Mini",
+        "Smart",
+        "Hyundai",
+        "Subaru",
+        "Volvo",
+        "Mitsubishi",
+        "Kia",
+        "Toyota",
+        "Chevrolet",
+        "Suzuki",
+        "Daihatsu",
+        "Chrysler",
+        "Jaguar",
+        "Rover",
+        "Porsche",
+        "Saab",
+        "LANDROVER"
       ],
       gear: ["manually", "automatic"],
       fuel: ["diesel", "petrol", "other", "lpg", "hybrid", "cng", "electro"],
@@ -244,8 +299,39 @@ export default {
           //console.log(this.reliableCars)
         });
 
+    },
+
+    loanAmount() {
+
+        axios
+        .get("http://localhost:9000/loans", {
+          params: {
+           principal: this.principal,
+            term : this.loan,
+            interest : this.interest
+          }
+        })
+        .then(response => {
+          console.log("Result", response)
+
+        });
+    },
+    compare() {
+
+        axios
+        .get("http://localhost:9000/reliability_avgrepair", {
+          params: {
+            brand: this.selectedBrandComparison
+          }
+        })
+        .then(response => {
+          console.log("Result", response)
+          this.comparison = true;
+          this.result_compare = response.data
+        });
     }
   }
+
 };
 </script>
 <style scoped>

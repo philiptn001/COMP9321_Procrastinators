@@ -20,11 +20,11 @@ from matplotlib.figure import Figure
 DATABASE = './cars.db'
 
 # ---------------ML loading model and encoder
-# f = open('Server/ml_model/encoder', 'rb')
+#f = open('Server/ml_model/encoder', 'rb')
 f = open('./ml_model/encoder', 'rb')
 enc = pickle.loads(f.read())
 
-# f = open('Server/ml_model/model', 'rb')
+#f = open('Server/ml_model/model', 'rb')
 f = open('./ml_model/model', 'rb')
 regressor = pickle.loads(f.read())
 
@@ -335,7 +335,6 @@ class reliability_avgprice(Resource):
         rel_df = df[['brand', 'Reliability Index', 'Average Repair Cost']]
         rel_df = rel_df[['brand', 'Reliability Index', 'Average Repair Cost']].drop_duplicates()
         reliability_index = rel_df.loc[rel_df['brand'] == user_brand]
-        print(rel_df)
         message = {
             'reliability': int(reliability_index["Reliability Index"]),
             'avgcost': float(reliability_index['Average Repair Cost'])
