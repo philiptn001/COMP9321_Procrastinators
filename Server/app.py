@@ -318,7 +318,7 @@ class Reliability(Resource):
 # feature 4
 reliability_avgprice_parser = reqparse.RequestParser()
 reliability_avgprice_parser.add_argument('brand', type=str)
-@api.route('/used_car_reliability_avgprice')
+@api.route('/reliability_avgrepair')
 class reliability_avgprice(Resource):
     @api.response(200, 'Successful')
     @api.expect(reliability_avgprice_parser, validate=True)
@@ -326,14 +326,20 @@ class reliability_avgprice(Resource):
     def get(self):
         car = reliability_avgprice_parser.parse_args()
         user_brand = car.get('brand')
-        rel_df = df[['brand','Reliability Index']]
-        rel_df = rel_df[['brand', 'Reliability Index']].drop_duplicates() 
+        rel_df = df[['brand', 'Reliability Index', 'Average Repair Cost']]
+        rel_df = rel_df[['brand', 'Reliability Index','Average Repair Cost']].drop_duplicates()
         reliability_index = rel_df.loc[rel_df['brand'] == user_brand]
-        return(int(reliability_index["Reliability Index"]))
+        print(rel_df)
+        message = {
+            'reliability': int(reliability_index["Reliability Index"]),
+            'avgcost': float(reliability_index['Average Repair Cost'])
+        }
+        message = jsonify(message)
+        return message
 
 
 
-@api.route('/usageStats')
+@api.route('/statistics')
 class ApiUsage(Resource):
     @api.response(200, 'Successful')
     @requires_admin
