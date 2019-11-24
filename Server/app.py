@@ -315,6 +315,24 @@ class Reliability(Resource):
         return send_file(filename, mimetype='image/png')
 
 
+# feature 4
+reliability_avgprice_parser = reqparse.RequestParser()
+reliability_avgprice_parser.add_argument('brand', type=str)
+@api.route('/used_car_reliability_avgprice')
+class reliability_avgprice(Resource):
+    @api.response(200, 'Successful')
+    @api.expect(reliability_avgprice_parser, validate=True)
+    @api.doc(desciption='Gives details on reliability index and average repair cost')
+    def get(self):
+        car = reliability_avgprice_parser.parse_args()
+        user_brand = car.get('brand')
+        rel_df = df[['brand','Reliability Index']]
+        rel_df = rel_df[['brand', 'Reliability Index']].drop_duplicates() 
+        reliability_index = rel_df.loc[rel_df['brand'] == user_brand]
+        return(int(reliability_index["Reliability Index"]))
+
+
+
 @api.route('/usageStats')
 class ApiUsage(Resource):
     @api.response(200, 'Successful')
