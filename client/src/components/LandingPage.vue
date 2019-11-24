@@ -63,12 +63,23 @@
             </v-container>
 
             <v-container v-if="i==3">
-            <v-btn tile color="orange" @click="reliability()"> Top 10 most reliable cars </v-btn>
+              <v-btn tile color="orange" @click="reliability()">Top 10 most reliable cars</v-btn>
+              <img :src="src" />
+            </v-container>
+            <v-container v-if="i==4">
+              <v-text-field v-model="principal" label="Enter principal "></v-text-field>
+              <v-text-field v-model="term" label="Enter term (in months) "></v-text-field>
+              <v-text-field v-model="interest" label="Enter interest (in %) "></v-text-field>
+
+              <v-btn tile color="orange" @click="loanAmount()">Calculate</v-btn>
+                <v-card>
+                  <v-card-title v-if="loan">
+                        {{ monthly }}
+                  </v-card-title>
+
+                </v-card>
 
             </v-container>
-            
-            <h1 v-if="i==4"></h1>
-
 
             <v-container v-if="i==5">
                <v-select :items="brandscomparison" v-model="selectedBrandComparison" label="Brand"></v-select>
@@ -83,6 +94,7 @@
                 </v-card>
  
             </v-container>
+            
 
 
           </v-card-text>
@@ -96,12 +108,23 @@
 <script>
 import axios from "axios";
 export default {
+
   data() {
     return {
+      imageLoad: false,
+      principal:null,
+      term:null,
+      interest: null,
       selectedBrandML: "",
       year: "",
       power: null,
+      monthly:null,
+      loan:false,
       km: null,
+      src:'',
+      b64Response: "",
+      final: "",
+      image: "",
       selectedTypeML: "",
       selectedBrandComparison: "",
       estimateCarResult: "",
@@ -114,6 +137,7 @@ export default {
       selectedBrand: "",
       selectedFuelML: "",
       repairedDamageML: "",
+      selectedBrandComparison: "",
       models: [],
       reliableCars: [],
       result: false,
@@ -124,7 +148,8 @@ export default {
         "Estimate car price",
         "Find cars",
         "Some visual info",
-        "API analytics"
+        "Monthly Loan Repayment",
+        "Brand Comparison"
       ],
       brands: [
         "Audi",
@@ -267,6 +292,23 @@ export default {
         });
     },
 
+    loanAmount() {
+        
+ 
+        axios
+        .get("http://localhost:9000/loans", {
+        params: {
+        principal: this.principal,
+        term : this.term,
+        interest : this.interest
+        }
+        })
+        .then(response => {
+        this.monthly = response.data;
+        this.loan = true;
+        });
+        },
+
     estimatePrice() {
       axios
         .get("http://localhost:9000/estimatePrice", {
@@ -288,17 +330,20 @@ export default {
         });
     },
 
-    reliability() {
-            axios
-        .get(
-          `http://localhost:9000/reliability`
-        )
-        .then(response => {
-          console.log("resp is", response);
-          //this.reliableCars = response.data;
-          //console.log(this.reliableCars)
-        });
+  
 
+    reliability() {
+      axios.get(`http://localhost:9000/reliability`, { responseType: 'arraybuffer' })
+      .then(response => {
+        let blob = new Blob(
+        [response.data], 
+        { type: response.headers['content-type'] }
+      )
+      let image = URL.createObjectURL(blob)
+      this.src = image
+        
+
+    })
     },
 
     loanAmount() {

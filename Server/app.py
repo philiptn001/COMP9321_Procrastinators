@@ -15,6 +15,7 @@ import flask_monitoringdashboard as dashboard
 from flask import Response
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
+import seaborn as sns
 
 # would require to implement a database for the analytics API as well as users login
 DATABASE = './cars.db'
@@ -307,16 +308,26 @@ class EstimateCar(Resource):
 # feature 3
 @api.route('/reliability')
 class Reliability(Resource):
-    @api.response(200, 'Successful')
+    @api.response(200, 'Success')
     @api.doc(desciption='Returns the top 10 most reliable car brands with their reliability indices')
     def get(self):
-        rel_df = df[['brand', 'Reliability Index']]
-        rel_df = rel_df[['brand', 'Reliability Index']].drop_duplicates()
-        rel_df = rel_df.nsmallest(10, 'Reliability Index')
-        rel_df.plot(kind='bar', x='brand', y='Reliability Index')
-        plt.savefig('reliability.png')
-        filename = 'reliability.png'
+        rel_df = df[['brand','Reliability Index']]
+        rel_df = rel_df[['brand', 'Reliability Index']].drop_duplicates()     
+        rel_df = rel_df.nsmallest(10,'Reliability Index')
+        #json_str = rel_df.to_json(orient='records')
+        #ds = json.loads(json_str)
+        #return ds
+        rel_df.plot(kind='bar',x='brand',y='Reliability Index')
+        plt.xticks(rotation=90)
+
+
+
+        plt.savefig('reliability.png')  
+        filename = '../reliability.png'
+
         return send_file(filename, mimetype='image/png')
+
+        
 
 
 # feature 4
@@ -354,7 +365,7 @@ loan_parser.add_argument('interest', type=float)
 class Loan(Resource):
     @api.response(200, 'Successful')
     @api.expect(loan_parser, validate=True)
-    @api.doc(description='GIves user the amount he needs to pay every month for loan payment')
+    @api.doc(description='Gives user the amount he needs to pay every month for loan payment')
     def get(self):
         args = loan_parser.parse_args()
         interest = args.get('interest')
