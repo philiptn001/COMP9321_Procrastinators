@@ -420,17 +420,6 @@ class Loan(Resource):
         return amount
 
 
-@api.route('/statistics')
-class ApiUsage(Resource):
-    @api.response(200, 'Success')
-    @requires_admin
-    @api.doc(description="API usage statistics")
-    def get(self):
-        db = query_db('select * from apiusage')
-        packet = jsonify(db)
-        return packet;
-
-
 if __name__ == '__main__':
     # preprocessing done in data_preprocessing directory, and the final csv after preprocessing is preprocessed.csv
     #df = pd.read_csv("Server/data_preprocessing/preprocessed.csv")
