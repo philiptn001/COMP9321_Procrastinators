@@ -324,7 +324,7 @@ class Reliability(Resource):
         plt.title('Brandwise Reliability Index', fontdict={'size':20})
         plt.grid(linestyle='--', alpha=0.5)
         plt.savefig('reliability.png')  
-        filename = '../reliability.png'
+        filename = 'reliability.png'
 
         return send_file(filename, mimetype='image/png')
 
@@ -364,7 +364,7 @@ class Graphcomparisons(Resource):
           ncol=3, fancybox=True)
         plt.xlabel('Brand')
         plt.savefig('reliability_compare.png')  
-        filename = '../reliability_compare.png'
+        filename = 'reliability_compare.png'
         return send_file(filename, mimetype='image/png')
 
 
