@@ -337,6 +337,17 @@ class reliability_avgprice(Resource):
         message = jsonify(message)
         return message
 
+#feature 5
+@api.route('/loan/<int:principal>/<int:term>/<float:interest>')
+class Loan(Resource):
+    @api.response(200, 'Successful')
+    @api.doc(description='GIves user the amount he needs to pay every month for loan payment')
+    def get(self):
+        interest = interest / 100
+        amount = (budget * (interest / 12)) / (1 - (1 + interest/12) ** -term)
+        print(amount)
+        amt = json.dumps(amount)
+        return amt
 
 
 @api.route('/statistics')
