@@ -250,7 +250,7 @@ price_predict_parser.add_argument('fuelType', type=str)
 price_predict_parser.add_argument('notRepairedDamage', type=str)
 
 # feature 1
-@api.route('/estimatePrice')
+@api.route('/price')
 class EstimatePrice(Resource):
     @api.response(200, 'Successful')
     @api.doc(description="Gives user a recommended price to sell the car")
@@ -270,7 +270,7 @@ class EstimatePrice(Resource):
         return {"Predicted_Price": y_pred[0]}, 200
 
 # feature 2
-@api.route('/estimateCar/<int:budget>/<brand>')
+@api.route('/cars/<int:budget>/<brand>')
 class EstimateCar(Resource):
     @api.response(200, 'Successful')
     @api.doc(description="Gives user a recommended car [list] for a given budget")
