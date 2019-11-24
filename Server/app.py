@@ -21,12 +21,12 @@ import seaborn as sns
 DATABASE = './cars.db'
 
 # ---------------ML loading model and encoder
-f = open('Server/ml_model/encoder', 'rb')
-#f = open('./ml_model/encoder', 'rb')
+#f = open('Server/ml_model/encoder', 'rb')
+f = open('./ml_model/encoder', 'rb')
 enc = pickle.loads(f.read())
 
-f = open('Server/ml_model/model', 'rb')
-#f = open('./ml_model/model', 'rb')
+#f = open('Server/ml_model/model', 'rb')
+f = open('./ml_model/model', 'rb')
 regressor = pickle.loads(f.read())
 
 
@@ -287,6 +287,7 @@ class EstimatePrice(Resource):
 class EstimateCar(Resource):
     @api.response(200, 'Successful')
     @api.doc(description="Gives user a recommended car [list] for a given budget")
+    @requires_auth
     # def get(self,budget):
     #     rec = df['price'].isin(range(budget-200,budget+200))
     #     df_rec = df.loc[rec,['model','brand','price']]
@@ -311,6 +312,7 @@ class EstimateCar(Resource):
 class Reliability(Resource):
     @api.response(200, 'Success')
     @api.doc(desciption='Returns the top 10 most reliable car brands with their reliability indices')
+    @requires_auth
     def get(self):
         rel_df = df[['brand','Reliability Index']]
         rel_df = rel_df[['brand', 'Reliability Index']].drop_duplicates()     
@@ -318,6 +320,7 @@ class Reliability(Resource):
         #json_str = rel_df.to_json(orient='records')
         #ds = json.loads(json_str)
         #return ds
+        matplotlib.use('Agg')
         rel_df.plot(kind='bar',x='brand',y='Reliability Index')
         plt.xticks(rotation=90)
 
@@ -341,6 +344,7 @@ class reliability_avgprice(Resource):
     @api.response(200, 'Successful')
     @api.expect(reliability_avgprice_parser, validate=True)
     @api.doc(desciption='Gives details on reliability index and average repair cost')
+    @requires_auth
     def get(self):
         car = reliability_avgprice_parser.parse_args()
         user_brand = car.get('brand')
@@ -367,6 +371,7 @@ class Loan(Resource):
     @api.response(200, 'Successful')
     @api.expect(loan_parser, validate=True)
     @api.doc(description='Gives user the amount he needs to pay every month for loan payment')
+    @requires_auth
     def get(self):
         args = loan_parser.parse_args()
         interest = args.get('interest')
@@ -391,8 +396,8 @@ class ApiUsage(Resource):
 
 if __name__ == '__main__':
     # preprocessing done in data_preprocessing directory, and the final csv after preprocessing is preprocessed.csv
-    df = pd.read_csv("Server/data_preprocessing/preprocessed.csv")
-    #df = pd.read_csv("./data_preprocessing/preprocessed.csv")
+    #df = pd.read_csv("Server/data_preprocessing/preprocessed.csv")
+    df = pd.read_csv("./data_preprocessing/preprocessed.csv")
     df['price'] = df['price'].astype('int')
     #  df.set_index('name',inplace=True)
     app.run(port=9000, debug=True);  # debug to be turned off  when deployed
