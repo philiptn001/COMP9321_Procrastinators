@@ -21,12 +21,12 @@ import seaborn as sns
 DATABASE = './cars.db'
 
 # ---------------ML loading model and encoder
-f = open('Server/ml_model/encoder', 'rb')
-#f = open('./ml_model/encoder', 'rb')
+#f = open('Server/ml_model/encoder', 'rb')
+f = open('./ml_model/encoder', 'rb')
 enc = pickle.loads(f.read())
 
-f = open('Server/ml_model/model', 'rb')
-#f = open('./ml_model/model', 'rb')
+#f = open('Server/ml_model/model', 'rb')
+f = open('./ml_model/model', 'rb')
 regressor = pickle.loads(f.read())
 
 
@@ -433,8 +433,8 @@ class ApiUsage(Resource):
 
 if __name__ == '__main__':
     # preprocessing done in data_preprocessing directory, and the final csv after preprocessing is preprocessed.csv
-    df = pd.read_csv("Server/data_preprocessing/preprocessed.csv")
-    #df = pd.read_csv("./data_preprocessing/preprocessed.csv")
+    #df = pd.read_csv("Server/data_preprocessing/preprocessed.csv")
+    df = pd.read_csv("./data_preprocessing/preprocessed.csv")
     df['price'] = df['price'].astype('int')
     #  df.set_index('name',inplace=True)
     app.run(port=9000, debug=True);  # debug to be turned off  when deployed

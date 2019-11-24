@@ -63,7 +63,7 @@
             </v-container>
 
             <v-container v-if="i==3">
-              <v-btn tile color="orange" @click="reliability()">Top 10 most reliable cars</v-btn>
+              <v-btn tile color="orange" @click="reliability()">Reliability Index Chart</v-btn>
               <img v-if="pic_load" :src="src" />
             </v-container>
             <v-container v-if="i==4">
@@ -73,19 +73,36 @@
 
               <v-btn tile color="orange" @click="loanAmount()">Calculate</v-btn>
               <v-card>
-                <v-card-title v-if="loan">{{ monthly }}</v-card-title>
+                <v-card-title v-if="loan">Monthly amount to be repaid: {{ monthly }} euros</v-card-title>
               </v-card>
             </v-container>
 
             <v-container v-if="i==5">
-              <v-select :items="brandscomparison" v-model="selectedBrandComparison1" label="Brand"></v-select>
-              <v-select :items="brandscomparison" v-model="selectedBrandComparison2" label="Brand"></v-select>
+              <v-select
+                :items="brandscomparison"
+                v-model="selectedBrandComparison1"
+                label="Brand 1"
+              ></v-select>
+              <v-select
+                :items="brandscomparison"
+                v-model="selectedBrandComparison2"
+                label="Brand 1"
+              ></v-select>
 
               <v-btn tile color="orange" @click="compare()">Compare</v-btn>
+
               <v-card>
-                <v-card-title
-                  v-if="comparison"
-                >Average cost is :{{result_compare.avgcost}}, Reliability Index is : {{result_compare.reliability}}</v-card-title>
+                <v-card-title v-if="compare_load">
+                  {{selectedBrandComparison1}} has a reliability index of {{brand1_rel}} and an average repair cost of {{brand1_avgrep}} euros,
+                  {{selectedBrandComparison2}} has a reliability index of {{brand2_rel}} and an average repair cost of {{brand2_avgrep}} euros
+                </v-card-title>
+                <v-card-subtitle
+                  v-if="compare_load"
+                  class="red--text"
+                >The Average of all cars is 100 which means that if the figure for the car you are looking at has a higher than average index it indicates that that car is less reliable than the average, if however there is a lower than average index the reliability is better.</v-card-subtitle>
+              </v-card>
+              <v-card>
+                <img v-if="compare_load" :src="cmp_src" height="500px" />
               </v-card>
             </v-container>
           </v-card-text>
@@ -116,6 +133,10 @@ export default {
       power: null,
       monthly: null,
       loan: false,
+      brand1_rel: "",
+      brand1_avgrep: "",
+      brand2_rel: "",
+      brand2_avgrep: "",
       km: null,
       src: "",
       b64Response: "",
@@ -134,12 +155,14 @@ export default {
       selectedFuelML: "",
       repairedDamageML: "",
       selectedBrandComparison1: "",
-      selectedBrandComparison2:"",
+      selectedBrandComparison2: "",
       models: [],
       reliableCars: [],
       result: false,
       price: 0,
       tab: null,
+      compare_load: false,
+      cmp_src: "",
       tabs: 5,
       token_login: "random token",
       tab_vals: [
@@ -316,6 +339,7 @@ export default {
         })
         .then(response => {
           this.monthly = response.data;
+          this.monthly = this.monthly.toFixed(2);
           this.loan = true;
         })
         .catch(function(error) {
@@ -387,18 +411,52 @@ export default {
     },
     compare() {
       axios
-        .get("http://localhost:9000/reliability_avgrepair", {
+        .get("http://localhost:9000/graphcomparisons", {
+          responseType: "arraybuffer",
+
+          headers: {
+            "AUTH-TOKEN": this.token_login
+          },
+
           params: {
             Brand_1: this.selectedBrandComparison1,
             Brand_2: this.selectedBrandComparison2
-          },
-          headers: {
-            "AUTH-TOKEN": this.token_login
           }
         })
         .then(response => {
-          this.comparison = true;
-          this.result_compare = response.data;
+          this.compare_load = true;
+          let blob = new Blob([response.data], {
+            type: response.headers["content-type"]
+          });
+          let image = URL.createObjectURL(blob);
+          this.cmp_src = image;
+        })
+        .catch(function(error) {
+          if (error.response) {
+            if (error.response.status == 401) {
+              alert("Authetication token is missing");
+              window.location.href = "/";
+            }
+          }
+        });
+      console.log("calling next");
+      axios
+        .get(`http://localhost:9000/comparisons`, {
+          headers: {
+            "AUTH-TOKEN": this.token_login
+          },
+          params: {
+            Brand_1: this.selectedBrandComparison1,
+            Brand_2: this.selectedBrandComparison2
+          }
+        })
+
+        .then(response => {
+          console.log(response.data);
+          this.brand1_rel = response.data.Brand_1_reliability;
+          this.brand1_avgrep = response.data.Brand_1_avgcost;
+          this.brand2_rel = response.data.Brand_2_reliability;
+          this.brand2_avgrep = response.data.Brand_2_avgcost;
         })
         .catch(function(error) {
           if (error.response) {
