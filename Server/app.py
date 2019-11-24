@@ -332,8 +332,8 @@ class Reliability(Resource):
 
 # feature 4
 reliability_avgprice_parser = reqparse.RequestParser()
-reliability_avgprice_parser.add_argument('brand', type=str)
-
+reliability_avgprice_parser.add_argument('Brand_1', type=str)
+reliability_avgprice_parser.add_argument('Brand_2', type=str)
 
 @api.route('/reliability_avgrepair')
 class reliability_avgprice(Resource):
@@ -342,15 +342,41 @@ class reliability_avgprice(Resource):
     @api.doc(desciption='Gives details on reliability index and average repair cost')
     def get(self):
         car = reliability_avgprice_parser.parse_args()
-        user_brand = car.get('brand')
+        user_brand_1 = car.get('Brand_1')
+        user_brand_2 = car.get('Brand_2')
         rel_df = df[['brand', 'Reliability Index', 'Average Repair Cost']]
         rel_df = rel_df[['brand', 'Reliability Index', 'Average Repair Cost']].drop_duplicates()
-        reliability_index = rel_df.loc[rel_df['brand'] == user_brand]
+        data_brand_1 = rel_df.loc[rel_df['brand'] == user_brand_1]
+        data_brand_2 = rel_df.loc[rel_df['brand'] == user_brand_2]
+        reli_brand_1 = int(data_brand_1["Reliability Index"])
+        reli_brand_2 = int(data_brand_2["Reliability Index"])
+        avg_repair_brand_1 = int(data_brand_1["Average Repair Cost"])
+        avg_repair_brand_2 = int(data_brand_2["Average Repair Cost"])
+
         message = {
-            'reliability': int(reliability_index["Reliability Index"]),
-            'avgcost': float(reliability_index['Average Repair Cost'])
+            'Brand_1_reliability': reli_brand_1),
+            'Brand_1_avgcost': avg_repair_brand_1),
+            'Brand_2_reliability': reli_brand_2),
+            'Brand_2_avgcost': avg_repair_brand_2)
         }
         message = jsonify(message)
+
+        # final_reliability_df = pd.DataFrame({'Brand':[user_brand_1, user_brand_2], 'Reliability_Index':[reli_brand_1, reli_brand_2]})
+        # final_reliability_df.plot(kind='bar',x='Brand',y='Reliability_Index')
+        # final_avg_repair_df = pd.DataFrame({'Brand':[user_brand_1, user_brand_2], 'Average_Repair_Cost':[reli_brand_1, reli_brand_2]})
+        # final_avg_repair_df.plot(kind='bar',x='Brand',y='Average_Repair_Cost')
+        # plt.xticks(rotation=90)
+        
+        # plt.plot([user_brand_1, user_brand_2], [avg_repair_brand_1, avg_repair_brand_2], 'b', label='avgcost')
+        # plt.plot([user_brand_1, user_brand_2], [reli_brand_1, reli_brand_2], 'r', label='reliability')
+        # plt.title('title')
+        # plt.ylabel('ylabel')
+        # plt.xlabel('xlabel')
+        # plt.legend()
+        
+        # plt.savefig('reliability_compare.png')  
+        # filename = './reliability_compare.png'
+        # return send_file(filename, mimetype='image/png')
         return message
 
 
