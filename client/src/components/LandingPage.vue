@@ -78,7 +78,8 @@
             </v-container>
 
             <v-container v-if="i==5">
-              <v-select :items="brandscomparison" v-model="selectedBrandComparison" label="Brand"></v-select>
+              <v-select :items="brandscomparison" v-model="selectedBrandComparison1" label="Brand"></v-select>
+              <v-select :items="brandscomparison" v-model="selectedBrandComparison2" label="Brand"></v-select>
 
               <v-btn tile color="orange" @click="compare()">Compare</v-btn>
               <v-card>
@@ -132,7 +133,8 @@ export default {
       selectedBrand: "",
       selectedFuelML: "",
       repairedDamageML: "",
-      selectedBrandComparison: "",
+      selectedBrandComparison1: "",
+      selectedBrandComparison2:"",
       models: [],
       reliableCars: [],
       result: false,
@@ -387,7 +389,8 @@ export default {
       axios
         .get("http://localhost:9000/reliability_avgrepair", {
           params: {
-            brand: this.selectedBrandComparison
+            Brand_1: this.selectedBrandComparison1,
+            Brand_2: this.selectedBrandComparison2
           },
           headers: {
             "AUTH-TOKEN": this.token_login
