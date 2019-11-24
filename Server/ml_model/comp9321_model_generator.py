@@ -4,19 +4,20 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 import pandas as pd
 import pickle
-file = '../data_preprocessing/preprocessed.csv'
+file = 'preprocessed_ml.csv'
 df = pd.read_csv(file)
 
 y = df["price"]
 df = df.drop("price", axis=1)
 df = df.drop("monthOfRegistration", axis=1)
-df = df.drop("Average Repair Cost", axis=1)
-df = df.drop("Reliability Index", axis=1)
 print(df.head())
 powerPS = df["powerPS"]
 df = df.drop("powerPS", axis=1)
 kilometer = df["kilometer"]
 df = df.drop("kilometer", axis=1)
+yearOfRegistration = df["yearOfRegistration"]
+df = df.drop("yearOfRegistration", axis=1)
+
 enc = OneHotEncoder(handle_unknown='ignore')
 enc.fit(df)
 x = enc.transform(df)
@@ -26,7 +27,7 @@ for vals in x:
 
 for i in range(len(X)):
 
-  X[i] = X[i] + [powerPS[i]] + [kilometer[i]]
+  X[i] = X[i] + [yearOfRegistration[i]] + [powerPS[i]] + [kilometer[i]]
 
 regressor = DecisionTreeRegressor(random_state=0)
 

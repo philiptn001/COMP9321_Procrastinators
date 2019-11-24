@@ -62,7 +62,10 @@
               </v-card>
             </v-container>
 
-            <h1 v-if="i==3">{{i}}</h1>
+            <v-container v-if="i==3">
+            <v-btn tile color="orange" @click="reliability()"> Top 10 most reliable cars </v-btn>
+
+            </v-container>
             <h1 v-if="i==4">{{i}}</h1>
           </v-card-text>
         </v-card>
@@ -91,6 +94,7 @@ export default {
       selectedFuelML: "",
       repairedDamageML: "",
       models: [],
+      reliableCars: [],
       result: false,
       price: 0,
       tab: null,
@@ -227,6 +231,19 @@ export default {
           this.estimateCarPrice = response.data.Predicted_Price;
           this.result = true;
         });
+    },
+
+    reliability() {
+            axios
+        .get(
+          `http://localhost:9000/reliability`
+        )
+        .then(response => {
+          console.log("resp is", response);
+          //this.reliableCars = response.data;
+          //console.log(this.reliableCars)
+        });
+
     }
   }
 };

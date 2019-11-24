@@ -1,14 +1,20 @@
 import json
+import io
 import pandas as pd
+from matplotlib import pyplot as plt
+import matplotlib
 import sqlite3
 import pickle
 from functools import wraps
 from time import time
-from flask import Flask, request, g, app, jsonify
+from flask import Flask, request, g, app, jsonify, send_file
 from flask_restplus import Resource, Api, abort, fields, inputs, reqparse
 from itsdangerous import SignatureExpired, JSONWebSignatureSerializer, BadSignature
 from flask_cors import CORS
 import flask_monitoringdashboard as dashboard
+from flask import Response
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 # would require to implement a database for the analytics API as well as users login
 DATABASE = './cars.db'
@@ -257,15 +263,16 @@ class EstimatePrice(Resource):
     @api.expect(price_predict_parser, validate=True)
     def get(self):
         car = price_predict_parser.parse_args()
-        df = [car.get('vehicleType'), car.get('yearOfRegistration'), car.get('gearbox'), car.get('model'),
+        df = [car.get('vehicleType'), car.get('gearbox'), car.get('model'),
               car.get('fuelType'), car.get('brand'), car.get('notRepairedDamage')]
        # print(df)
         powerPS = car.get('powerPS')
         kilometer = car.get('kilometer')
+        yearOfRegistration = car.get('yearOfRegistration')
         x = enc.transform([df])
         X = []
         X.append(x.toarray()[0].tolist())
-        X = X[0] + [powerPS] + [kilometer]
+        X = X[0] + [yearOfRegistration] + [powerPS] + [kilometer]
         y_pred = regressor.predict([X])
         return {"Predicted_Price": y_pred[0]}, 200
 
@@ -302,10 +309,29 @@ class Reliability(Resource):
         rel_df = df[['brand','Reliability Index']]
         rel_df = rel_df[['brand', 'Reliability Index']].drop_duplicates()     
         rel_df = rel_df.nsmallest(10,'Reliability Index')
-        print(rel_df.to_string())
-        json_str = rel_df.to_json(orient='records')
-        ds = json.loads(json_str)
-        return ds, 200
+        rel_df.plot(kind='bar',x='brand',y='Reliability Index')
+        plt.savefig('reliability.png')   
+        filename = 'reliability.png'
+        return send_file(filename, mimetype='image/png')
+
+
+# feature 4
+reliability_avgprice_parser = reqparse.RequestParser()
+reliability_avgprice_parser.add_argument('brand', type=str)
+@api.route('/used_car_reliability_avgprice')
+class reliability_avgprice(Resource):
+    @api.response(200, 'Successful')
+    @api.expect(reliability_avgprice_parser, validate=True)
+    @api.doc(desciption='Gives details on reliability index and average repair cost')
+    def get(self):
+        car = reliability_avgprice_parser.parse_args()
+        user_brand = car.get('brand')
+        rel_df = df[['brand','Reliability Index']]
+        rel_df = rel_df[['brand', 'Reliability Index']].drop_duplicates() 
+        reliability_index = rel_df.loc[rel_df['brand'] == user_brand]
+        return(int(reliability_index["Reliability Index"]))
+
+
 
 @api.route('/usageStats')
 class ApiUsage(Resource):
