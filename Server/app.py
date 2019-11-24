@@ -302,7 +302,7 @@ class Cars(Resource):
 @api.route('/reliability')
 class Reliability(Resource):
     @api.response(200, 'Success')
-    @api.doc(desciption='Returns the top 10 most reliable car brands with their reliability indices')
+    @api.doc(description='Returns the top 10 most reliable car brands with their reliability indices')
     @requires_auth
     def get(self):
         rel_df = df[['brand','Reliability Index']]
@@ -339,8 +339,8 @@ reliability_avgprice_parser.add_argument('Brand_2', type=str)
 @api.route('/graphcomparisons')
 class Graphcomparisons(Resource):
     @api.response(200, 'Success')
+    @api.doc(description='Compares 2 brands on reliability index and average repair cost and generates a graph')
     @api.expect(reliability_avgprice_parser, validate=True)
-    @api.doc(desciption='Gives details on reliability index and average repair cost')
     @requires_auth
     def get(self):
         car = reliability_avgprice_parser.parse_args()
@@ -371,8 +371,8 @@ class Graphcomparisons(Resource):
 @api.route('/comparisons')
 class Comparisons(Resource):
     @api.response(200, 'Success')
+    @api.doc(description='Compares 2 brands on their reliability index and average repair cost')
     @api.expect(reliability_avgprice_parser, validate=True)
-    @api.doc(desciption='Gives details on reliability index and average repair cost')
     @requires_auth
     def get(self):
         car = reliability_avgprice_parser.parse_args()
@@ -396,13 +396,13 @@ class Comparisons(Resource):
         return message
 
 
-# feature 5
+
 loan_parser = reqparse.RequestParser()
 loan_parser.add_argument('principal', type=int)
 loan_parser.add_argument('term', type=int)
 loan_parser.add_argument('interest', type=float)
 
-
+#feature 5
 @api.route('/loans')
 class Loan(Resource):
     @api.response(200, 'Success')
