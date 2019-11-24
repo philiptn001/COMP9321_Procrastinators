@@ -16,11 +16,13 @@ To set up the development environment, you are required Python 3 and pip\
 
 #### 1. estimatePrice: the estimate price for Car Properties provided
 #### 2. estimateCar: the estimate car[list?] for a price given
-#### 3. User Authenication (Tokening)
-#### 4. Car Statistics
-#### 5. Cars Sold yearly
-#### 6. API Statistics
-#### 7. Swagger Documentation
+#### 3. Check reliability of brands
+#### 4. Check amount f monthly payments for loan
+#### 5. User Authenication (Tokening)
+#### 6. Car Statistics
+#### 7. Cars Sold yearly
+#### 8. API Statistics
+#### 9. Swagger Documentation
 
 # Client Setup
 Instructions within client folder
