@@ -15,6 +15,7 @@ import flask_monitoringdashboard as dashboard
 from flask import Response
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
+import seaborn as sns
 
 # would require to implement a database for the analytics API as well as users login
 DATABASE = './cars.db'
@@ -302,16 +303,26 @@ class EstimateCar(Resource):
 # feature 3
 @api.route('/reliability')
 class Reliability(Resource):
-    @api.response(200, 'Successful')
+    @api.response(200, 'Success')
     @api.doc(desciption='Returns the top 10 most reliable car brands with their reliability indices')
     def get(self):
         rel_df = df[['brand','Reliability Index']]
         rel_df = rel_df[['brand', 'Reliability Index']].drop_duplicates()     
         rel_df = rel_df.nsmallest(10,'Reliability Index')
+        #json_str = rel_df.to_json(orient='records')
+        #ds = json.loads(json_str)
+        #return ds
         rel_df.plot(kind='bar',x='brand',y='Reliability Index')
-        plt.savefig('reliability.png')   
-        filename = 'reliability.png'
+        plt.xticks(rotation=90)
+
+
+
+        plt.savefig('reliability.png')  
+        filename = '../reliability.png'
+
         return send_file(filename, mimetype='image/png')
+
+        
 
 
 @api.route('/usageStats')
@@ -327,7 +338,7 @@ class ApiUsage(Resource):
 
 if __name__ == '__main__':
     # preprocessing done in data_preprocessing directory, and the final csv after preprocessing is preprocessed.csv
-    # df = pd.read_csv("Server/data_preprocessing/preprocessed.csv")
+    #df = pd.read_csv("Server/data_preprocessing/preprocessed.csv")
     df = pd.read_csv("./data_preprocessing/preprocessed.csv")
     df['price'] = df['price'].astype('int')
     #  df.set_index('name',inplace=True)

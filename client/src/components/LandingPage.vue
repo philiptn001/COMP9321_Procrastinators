@@ -63,8 +63,9 @@
             </v-container>
 
             <v-container v-if="i==3">
-            <v-btn tile color="orange" @click="reliability()"> Top 10 most reliable cars </v-btn>
-
+              <v-btn tile color="orange" @click="reliability()">Top 10 most reliable cars</v-btn>
+              <img :src="src"/>
+              
             </v-container>
             <h1 v-if="i==4">{{i}}</h1>
           </v-card-text>
@@ -78,12 +79,18 @@
 <script>
 import axios from "axios";
 export default {
+
   data() {
     return {
+      imageLoad: false,
       selectedBrandML: "",
       year: "",
       power: null,
       km: null,
+      src:'',
+      b64Response: "",
+      final: "",
+      image: "",
       selectedTypeML: "",
       estimateCarResult: "",
       estimateCarPrice: "",
@@ -233,17 +240,21 @@ export default {
         });
     },
 
-    reliability() {
-            axios
-        .get(
-          `http://localhost:9000/reliability`
-        )
-        .then(response => {
-          console.log("resp is", response);
-          //this.reliableCars = response.data;
-          //console.log(this.reliableCars)
-        });
+  
 
+    reliability() {
+      axios.get(`http://localhost:9000/reliability`, { responseType: 'arraybuffer' })
+      .then(response => {
+        let blob = new Blob(
+        [response.data], 
+        { type: response.headers['content-type'] }
+      )
+      let image = URL.createObjectURL(blob)
+      this.src = image
+        
+
+       
+      });
     }
   }
 };
