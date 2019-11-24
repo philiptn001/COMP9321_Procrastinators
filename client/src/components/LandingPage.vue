@@ -64,10 +64,26 @@
 
             <v-container v-if="i==3">
               <v-btn tile color="orange" @click="reliability()">Top 10 most reliable cars</v-btn>
-              <img :src="src"/>
-              
+              <img :src="src" />
             </v-container>
-            <h1 v-if="i==4">{{i}}</h1>
+            <v-container v-if="i==4">
+              <v-text-field v-model="principal" label="Enter principal "></v-text-field>
+              <v-text-field v-model="term" label="Enter term (in months) "></v-text-field>
+              <v-text-field v-model="interest" label="Enter interest (in %) "></v-text-field>
+
+              <v-btn tile color="orange" @click="loanAmount()">Calculate</v-btn>
+                <v-card>
+                  <v-card-title v-if="loan">
+                        {{ monthly }}
+                  </v-card-title>
+
+                </v-card>
+
+            </v-container>
+
+            
+
+
           </v-card-text>
         </v-card>
       </v-tab-item>
@@ -83,9 +99,14 @@ export default {
   data() {
     return {
       imageLoad: false,
+      principal:null,
+      term:null,
+      interest: null,
       selectedBrandML: "",
       year: "",
       power: null,
+      monthly:null,
+      loan:false,
       km: null,
       src:'',
       b64Response: "",
@@ -100,17 +121,19 @@ export default {
       selectedBrand: "",
       selectedFuelML: "",
       repairedDamageML: "",
+      selectedBrandComparison: "",
       models: [],
       reliableCars: [],
       result: false,
       price: 0,
       tab: null,
-      tabs: 4,
+      tabs: 5,
       tab_vals: [
         "Estimate car price",
         "Find cars",
         "Some visual info",
-        "API analytics"
+        "Monthly Loan Repayment",
+        "Brand Comparison"
       ],
       brands: [
         "Audi",
@@ -156,6 +179,17 @@ export default {
         "station wagon",
         "bus"
       ],
+      brandsML: ["Audi", "BMW", "Mercedes_Benz", "Volkswagen"],
+      types: [
+        "coupe",
+        "suv",
+        "small car",
+        "limousine",
+        "cabrio",
+        "station wagon",
+        "bus"
+      ],
+      
       gear: ["manually", "automatic"],
       fuel: ["diesel", "petrol", "other", "lpg", "hybrid", "cng", "electro"],
       repairedDamage: ["Yes", "No", "unknown"],
@@ -218,6 +252,23 @@ export default {
           this.estimateCarResult = response.data;
         });
     },
+
+    loanAmount() {
+        
+ 
+        axios
+        .get("http://localhost:9000/loans", {
+        params: {
+        principal: this.principal,
+        term : this.term,
+        interest : this.interest
+        }
+        })
+        .then(response => {
+        this.monthly = response.data;
+        this.loan = true;
+        });
+        },
 
     estimatePrice() {
       axios

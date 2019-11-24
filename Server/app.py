@@ -21,11 +21,11 @@ import seaborn as sns
 DATABASE = './cars.db'
 
 # ---------------ML loading model and encoder
-# f = open('Server/ml_model/encoder', 'rb')
+#f = open('Server/ml_model/encoder', 'rb')
 f = open('./ml_model/encoder', 'rb')
 enc = pickle.loads(f.read())
 
-# f = open('Server/ml_model/model', 'rb')
+#f = open('Server/ml_model/model', 'rb')
 f = open('./ml_model/model', 'rb')
 regressor = pickle.loads(f.read())
 
@@ -366,7 +366,7 @@ loan_parser.add_argument('interest', type=float)
 class Loan(Resource):
     @api.response(200, 'Successful')
     @api.expect(loan_parser, validate=True)
-    @api.doc(description='GIves user the amount he needs to pay every month for loan payment')
+    @api.doc(description='Gives user the amount he needs to pay every month for loan payment')
     def get(self):
         args = loan_parser.parse_args()
         interest = args.get('interest')
