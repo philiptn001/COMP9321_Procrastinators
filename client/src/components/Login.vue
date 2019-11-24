@@ -27,14 +27,7 @@
       <v-card-actions>
         <v-row align="center">
           <v-col class="text-center">
-            <v-btn
-              @click="getKey()"
-              dark
-              tile
-              color="#5C6BC0"
-              width="40%"
-              class="mt-n6"
-            >Login</v-btn>
+            <v-btn @click="getKey()" dark tile color="#5C6BC0" width="40%" class="mt-n6">Login</v-btn>
           </v-col>
         </v-row>
       </v-card-actions>
@@ -62,7 +55,7 @@ export default {
     getKey() {
       console.log(this.username, this.password);
       axios
-        .post(`http://localhost:9000/session`,null, {
+        .post(`http://localhost:9000/session`, null, {
           params: {
             username: this.username,
             password: this.password
@@ -71,12 +64,16 @@ export default {
         .then(
           response => {
             console.log(response);
-            if(response.status == 200) {
-              this.token = response.data.token
+            if (response.status == 200) {
+              this.token = response.data.token;
+
+              //this.$root.$emit('token', this.token);
               this.$router.push({
                 name: "landing",
-      });
-
+                params: {
+                  token: this.token
+                }
+              });
             }
           },
           error => {

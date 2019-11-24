@@ -64,7 +64,7 @@
 
             <v-container v-if="i==3">
               <v-btn tile color="orange" @click="reliability()">Top 10 most reliable cars</v-btn>
-              <img :src="src" />
+              <img v-if="pic_load" :src="src" />
             </v-container>
             <v-container v-if="i==4">
               <v-text-field v-model="principal" label="Enter principal "></v-text-field>
@@ -72,31 +72,21 @@
               <v-text-field v-model="interest" label="Enter interest (in %) "></v-text-field>
 
               <v-btn tile color="orange" @click="loanAmount()">Calculate</v-btn>
-                <v-card>
-                  <v-card-title v-if="loan">
-                        {{ monthly }}
-                  </v-card-title>
-
-                </v-card>
-
+              <v-card>
+                <v-card-title v-if="loan">{{ monthly }}</v-card-title>
+              </v-card>
             </v-container>
 
             <v-container v-if="i==5">
-               <v-select :items="brandscomparison" v-model="selectedBrandComparison" label="Brand"></v-select>
-              
- 
+              <v-select :items="brandscomparison" v-model="selectedBrandComparison" label="Brand"></v-select>
+
               <v-btn tile color="orange" @click="compare()">Compare</v-btn>
-                <v-card>
-                  <v-card-title v-if="comparison">
-                        Average cost is :{{result_compare.avgcost}}, Reliability Index is : {{result_compare.reliability}}
-                  </v-card-title>
- 
-                </v-card>
- 
+              <v-card>
+                <v-card-title
+                  v-if="comparison"
+                >Average cost is :{{result_compare.avgcost}}, Reliability Index is : {{result_compare.reliability}}</v-card-title>
+              </v-card>
             </v-container>
-            
-
-
           </v-card-text>
         </v-card>
       </v-tab-item>
@@ -107,21 +97,26 @@
 
 <script>
 import axios from "axios";
-export default {
 
+const props = {
+  token: String
+};
+export default {
+  props: props,
   data() {
     return {
       imageLoad: false,
-      principal:null,
-      term:null,
+      principal: null,
+      term: null,
       interest: null,
       selectedBrandML: "",
       year: "",
+      pic_load: false,
       power: null,
-      monthly:null,
-      loan:false,
+      monthly: null,
+      loan: false,
       km: null,
-      src:'',
+      src: "",
       b64Response: "",
       final: "",
       image: "",
@@ -130,8 +125,8 @@ export default {
       estimateCarResult: "",
       estimateCarPrice: "",
       selectedModelML: "",
-      comparison:false,
-      result_compare : [],
+      comparison: false,
+      result_compare: [],
       selectedGearML: "",
       priceRange: "",
       selectedBrand: "",
@@ -144,6 +139,7 @@ export default {
       price: 0,
       tab: null,
       tabs: 5,
+      token_login: "random token",
       tab_vals: [
         "Estimate car price",
         "Find cars",
@@ -256,7 +252,7 @@ export default {
     };
   },
   created() {
-    //console.log("checking");
+    this.token_login = this.$route.params.token;
   },
 
   watch: {
@@ -281,35 +277,58 @@ export default {
   },
   methods: {
     carListSearch() {
-      // console.log(this.priceRange, this.selectedBrand);
       axios
         .get(
-          `http://localhost:9000/estimateCar/${this.priceRange}/${this.selectedBrand}`
+          `http://localhost:9000/cars/${this.priceRange}/${this.selectedBrand}`,
+          {
+            headers: {
+              "AUTH-TOKEN": this.token_login
+            }
+          }
         )
+
         .then(response => {
-          console.log("resp is", response);
           this.estimateCarResult = response.data;
+        })
+        .catch(function(error) {
+          if (error.response) {
+            if (error.response.status == 401) {
+              alert("Authetication token is missing");
+              window.location.href = "/";
+            }
+          }
         });
     },
 
     loanAmount() {
-        axios
+      axios
         .get("http://localhost:9000/loans", {
-        params: {
-        principal: this.principal,
-        term : this.term,
-        interest : this.interest
-        }
+          params: {
+            principal: this.principal,
+            term: this.term,
+            interest: this.interest
+          },
+          headers: {
+            "AUTH-TOKEN": this.token_login
+          }
         })
         .then(response => {
-        this.monthly = response.data;
-        this.loan = true;
+          this.monthly = response.data;
+          this.loan = true;
+        })
+        .catch(function(error) {
+          if (error.response) {
+            if (error.response.status == 401) {
+              alert("Authetication token is missing");
+              window.location.href = "/";
+            }
+          }
         });
-        },
+    },
 
     estimatePrice() {
       axios
-        .get("http://localhost:9000/estimatePrice", {
+        .get("http://localhost:9000/price", {
           params: {
             brand: this.selectedBrandML,
             model: this.selectedModelML,
@@ -320,45 +339,74 @@ export default {
             kilometer: this.km,
             fuelType: this.selectedFuelML,
             notRepairedDamage: this.repairedDamageML
+          },
+          headers: {
+            "AUTH-TOKEN": this.token_login
           }
         })
         .then(response => {
           this.estimateCarPrice = response.data.Predicted_Price;
           this.result = true;
+        })
+        .catch(function(error) {
+          if (error.response) {
+            if (error.response.status == 401) {
+              alert("Authetication token is missing");
+              window.location.href = "/";
+            }
+          }
         });
     },
 
-  
-
     reliability() {
-      axios.get(`http://localhost:9000/reliability`, { responseType: 'arraybuffer' })
-      .then(response => {
-        let blob = new Blob(
-        [response.data], 
-        { type: response.headers['content-type'] }
-      )
-      let image = URL.createObjectURL(blob)
-      this.src = image
-        
-
-    })
+      axios
+        .get(`http://localhost:9000/reliability`, {
+          headers: {
+            "AUTH-TOKEN": this.token_login
+          },
+          responseType: "arraybuffer"
+        })
+        .then(response => {
+          this.pic_load = true;
+          let blob = new Blob([response.data], {
+            type: response.headers["content-type"]
+          });
+          let image = URL.createObjectURL(blob);
+          this.src = image;
+        })
+        .catch(function(error) {
+          if (error.response) {
+            if (error.response.status == 401) {
+              alert("Authetication token is missing");
+              window.location.href = "/";
+            }
+          }
+        });
     },
     compare() {
-
-        axios
+      axios
         .get("http://localhost:9000/reliability_avgrepair", {
           params: {
             brand: this.selectedBrandComparison
+          },
+          headers: {
+            "AUTH-TOKEN": this.token_login
           }
         })
         .then(response => {
-          console.log("Result", response)
           this.comparison = true;
-          this.result_compare = response.data
+          this.result_compare = response.data;
+        })
+        .catch(function(error) {
+          if (error.response) {
+            if (error.response.status == 401) {
+              alert("Authetication token is missing");
+              window.location.href = "/";
+            }
+          }
         });
     }
   }
-
 };
 </script>
 <style scoped>

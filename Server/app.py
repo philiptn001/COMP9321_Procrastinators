@@ -265,6 +265,7 @@ class Price(Resource):
     @api.response(200, 'Success')
     @api.doc(description="Gives user a recommended price to sell the car")
     @api.expect(price_predict_parser, validate=True)
+    @requires_auth
     def get(self):
         car = price_predict_parser.parse_args()
         df = [car.get('vehicleType'), car.get('gearbox'), car.get('model'),
@@ -285,6 +286,7 @@ class Price(Resource):
 class Cars(Resource):
     @api.response(200, 'Success')
     @api.doc(description="Gives user a recommended car [list] for a given budget")
+    @requires_auth
     def get(self, budget, brand):
         rec = df['price'].isin(range(budget - 50, budget + 50))
         df_rec = df.loc[rec, ['model', 'brand', 'yearOfRegistration']]
@@ -301,6 +303,7 @@ class Cars(Resource):
 class Reliability(Resource):
     @api.response(200, 'Success')
     @api.doc(desciption='Returns the top 10 most reliable car brands with their reliability indices')
+    @requires_auth
     def get(self):
         rel_df = df[['brand','Reliability Index']]
         
@@ -310,6 +313,7 @@ class Reliability(Resource):
         rel_df['colors'] = ['red' if x >100 else 'green' for x in rel_df['Reliability Index']]
         rel_df.rename(columns={"Reliability Index": "reliability"})
         rel_df.rename(columns={'Reliability Index':'reliability'}, inplace=True)
+        matplotlib.use('Agg')
         plt.figure(figsize=(14,10), dpi= 80)
         plt.hlines(y=rel_df.brand, xmin=0, xmax=rel_df.reliability, color=rel_df.colors, alpha=0.4, linewidth=5)
         for x, y, tex in zip(rel_df.reliability, rel_df.brand, rel_df.reliability):
@@ -337,6 +341,7 @@ class Graphcomparisons(Resource):
     @api.response(200, 'Success')
     @api.expect(reliability_avgprice_parser, validate=True)
     @api.doc(desciption='Gives details on reliability index and average repair cost')
+    @requires_auth
     def get(self):
         car = reliability_avgprice_parser.parse_args()
         user_brand_1 = car.get('Brand_1')
@@ -368,6 +373,7 @@ class Comparisons(Resource):
     @api.response(200, 'Success')
     @api.expect(reliability_avgprice_parser, validate=True)
     @api.doc(desciption='Gives details on reliability index and average repair cost')
+    @requires_auth
     def get(self):
         car = reliability_avgprice_parser.parse_args()
         user_brand_1 = car.get('Brand_1')
@@ -402,6 +408,7 @@ class Loan(Resource):
     @api.response(200, 'Success')
     @api.expect(loan_parser, validate=True)
     @api.doc(description='Gives user the amount he needs to pay every month for loan payment')
+    @requires_auth
     def get(self):
         args = loan_parser.parse_args()
         interest = args.get('interest')
