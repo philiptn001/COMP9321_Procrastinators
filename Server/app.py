@@ -312,16 +312,27 @@ class Reliability(Resource):
     @api.doc(desciption='Returns the top 10 most reliable car brands with their reliability indices')
     def get(self):
         rel_df = df[['brand','Reliability Index']]
+        
         rel_df = rel_df[['brand', 'Reliability Index']].drop_duplicates()     
-        rel_df = rel_df.nsmallest(10,'Reliability Index')
+        rel_df = rel_df.nsmallest(30,'Reliability Index')
+        rel_df.reset_index(inplace=True)
+        rel_df['colors'] = ['red' if x >100 else 'green' for x in rel_df['Reliability Index']]
+        rel_df.rename(columns={"Reliability Index": "reliability"})
+        rel_df.rename(columns={'Reliability Index':'reliability'}, inplace=True)
         #json_str = rel_df.to_json(orient='records')
         #ds = json.loads(json_str)
         #return ds
-        rel_df.plot(kind='bar',x='brand',y='Reliability Index')
-        plt.xticks(rotation=90)
+        #rel_df.plot(kind='bar',x='brand',y='Reliability Index')
+        #plt.xticks(rotation=90)
+        plt.figure(figsize=(14,10), dpi= 80)
+        plt.hlines(y=rel_df.brand, xmin=0, xmax=rel_df.reliability, color=rel_df.colors, alpha=0.4, linewidth=5)
+        for x, y, tex in zip(rel_df.reliability, rel_df.brand, rel_df.reliability):
 
-
-
+            t = plt.text(x, y, round(tex, 2), horizontalalignment='left', 
+                 verticalalignment='center', fontdict={'color':'red' if x >100 else 'green', 'size':14})
+        plt.gca().set(ylabel='$Brand$', xlabel='$Reliability Index$')
+        plt.title('Brandwise Reliability Index', fontdict={'size':20})
+        plt.grid(linestyle='--', alpha=0.5)
         plt.savefig('reliability.png')  
         filename = '../reliability.png'
 
