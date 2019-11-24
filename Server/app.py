@@ -263,15 +263,16 @@ class EstimatePrice(Resource):
     @api.expect(price_predict_parser, validate=True)
     def get(self):
         car = price_predict_parser.parse_args()
-        df = [car.get('vehicleType'), car.get('yearOfRegistration'), car.get('gearbox'), car.get('model'),
+        df = [car.get('vehicleType'), car.get('gearbox'), car.get('model'),
               car.get('fuelType'), car.get('brand'), car.get('notRepairedDamage')]
        # print(df)
         powerPS = car.get('powerPS')
         kilometer = car.get('kilometer')
+        yearOfRegistration = car.get('yearOfRegistration')
         x = enc.transform([df])
         X = []
         X.append(x.toarray()[0].tolist())
-        X = X[0] + [powerPS] + [kilometer]
+        X = X[0] + [yearOfRegistration] + [powerPS] + [kilometer]
         y_pred = regressor.predict([X])
         return {"Predicted_Price": y_pred[0]}, 200
 
