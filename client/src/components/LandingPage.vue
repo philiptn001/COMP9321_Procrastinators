@@ -293,8 +293,6 @@ export default {
     },
 
     loanAmount() {
-        
- 
         axios
         .get("http://localhost:9000/loans", {
         params: {
@@ -344,22 +342,6 @@ export default {
         
 
     })
-    },
-
-    loanAmount() {
-
-        axios
-        .get("http://localhost:9000/loans", {
-          params: {
-           principal: this.principal,
-            term : this.loan,
-            interest : this.interest
-          }
-        })
-        .then(response => {
-          console.log("Result", response)
-
-        });
     },
     compare() {
 
