@@ -180,6 +180,7 @@ class User(Resource):
     @api.response(200, 'User Grant Admin Access')
     @api.doc(description='gives a user admin status')
     @api.expect(username_parser, validate=True)
+    @requires_admin
     def put(self):
         args = username_parser.parse_args()
         username = args.get('username')
@@ -195,7 +196,7 @@ class User(Resource):
     @api.response(200, 'User deleted')
     @api.doc(description='deletes a user register from records')
     @api.expect(username_parser, validate=True)
-    @requires_auth
+    @requires_admin
     def delete(self):
         args = username_parser.parse_args()
         username = args.get('username')
@@ -227,6 +228,8 @@ class Session(Resource):
     @api.doc(description='gets the current user login')
     def get(self):
         token = request.headers.get('AUTH-TOKEN')
+        if not token:
+            abort(401, 'Authentication token is missing')
         # due to programming  by contract, the session should be validated by @require_auth and always have a valid
         # session
         user = auth.validate_token(token)
