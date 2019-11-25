@@ -6,33 +6,49 @@ Providing a Flask Restplus Analytical Service design to assist a user in analysi
 ### Backend setup
 To set up the development environment, you are required Python 3 and pip\
     1. Install `python3.7.X.` (pip comes by default after python3.4)\
-    2. install virtual environment 'python3 -m venv venv' if windows `py -3 -m venv venv`\
+    2. install virtual environment `python3 -m venv venv` if windows `py -3 -m venv venv`\
     3. Activate virtual environment `. venv/bin/activate` if windows `> venv\Scripts\activate`\
     4. Install using `pip install -r requirements.txt` \
     6. Run `python app.py`\
     Back end api can be accessed by default using `localhost:9000` (port is defaulted to 9000)
-    
-### API Endpoints
 
-#### 1. estimatePrice: the estimate price for Car Properties provided
-#### 2. estimateCar: the estimate car[list?] for a price given
-#### 3. Check reliability of brands
-#### 4. Check amount f monthly payments for loan
-#### 5. User Authenication (Tokening)
-#### 6. Car Statistics
-#### 7. Cars Sold yearly
-#### 8. API Statistics
-#### 9. Swagger Documentation
+# client setup
 
-# Client Setup
-Instructions within client folder
+## Project setup
+```
+npm install
+```
+
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
+
+### Compiles and minifies for production
+```
+npm run build
+```
+
+### Run your tests
+```
+npm run test
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
+
 
 # User Logins for authentications
-#####sample user login
+##### sample user login
 username: user\
 password: password
 
-#####sample admin
+##### sample admin
 username: admin\
 password: abc123
 
