@@ -361,6 +361,7 @@ class Graphcomparisons(Resource):
         repair = [avg_repair_brand_1, avg_repair_brand_2]
         index = [user_brand_1, user_brand_2]
         rel_df = pd.DataFrame({'Reliability': reliability,'Average Repair Cost': repair}, index=index)
+        matplotlib.use('Agg')
         ax = rel_df.plot.bar(rot=0, color=['lightpink', 'skyblue'])
         ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),
           ncol=3, fancybox=True)

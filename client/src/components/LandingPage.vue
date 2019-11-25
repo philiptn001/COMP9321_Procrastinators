@@ -1,9 +1,12 @@
 <template>
   <div>
+
+    <v-btn tile outlined right color="orange" @click="logOut()"> logout</v-btn>
+   
     <v-tabs
       v-model="tab"
       background-color="deep-purple accent-4"
-      class="elevation-2"
+      class="elevation-2 mt-2"
       dark
       :grow="true"
     >
@@ -24,8 +27,8 @@
 
                   <v-select class="mr-12" :items="gear" v-model="selectedGearML" label="Gear"></v-select>
 
-                  <v-text-field class="mr-12" v-model="year" label="Enter year  "></v-text-field>
-                  <v-text-field class="mr-12" v-model="power" label="Enter power in PS  "></v-text-field>
+                  <v-text-field class="mr-12" v-model="year" label="Enter year"></v-text-field>
+                  <v-text-field class="mr-12" v-model="power" label="Enter power in PS"></v-text-field>
                   <v-text-field class="mr-10" v-model="km" label="Enter kilometres"></v-text-field>
                   <v-select class="mr-12" :items="fuel" v-model="selectedFuelML" label="Fuel Type"></v-select>
                   <v-select
@@ -49,7 +52,7 @@
               <v-card flat class="mx-auto ma-auto mt-12" width="500px">
                 <v-select :items="brands" v-model="selectedBrand" label="Brand"></v-select>
 
-                <v-text-field v-model="priceRange" label="Enter price "></v-text-field>
+                <v-text-field v-model="priceRange" label="Enter price (in Euros)"></v-text-field>
 
                 <v-btn color="orange" tile @click="carListSearch()">Check for cars</v-btn>
               </v-card>
@@ -67,7 +70,7 @@
               <img v-if="pic_load" :src="src" />
             </v-container>
             <v-container v-if="i==4">
-              <v-text-field v-model="principal" label="Enter principal "></v-text-field>
+              <v-text-field v-model="principal" label="Enter principal (in Euros)"></v-text-field>
               <v-text-field v-model="term" label="Enter term (in months) "></v-text-field>
               <v-text-field v-model="interest" label="Enter interest (in %) "></v-text-field>
 
@@ -301,6 +304,10 @@ export default {
     }
   },
   methods: {
+    logOut() {
+        this.token_login = ''
+        window.location.href = "/";
+    },
     carListSearch() {
       axios
         .get(
