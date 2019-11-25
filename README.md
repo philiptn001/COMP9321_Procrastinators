@@ -52,4 +52,7 @@ password: password
 username: admin\
 password: abc123
 
-
+##### Flask monitoring dashboard
+access via /dashboard endpoint
+username: admin\
+password: admin
