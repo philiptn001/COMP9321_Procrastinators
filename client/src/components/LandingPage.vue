@@ -18,6 +18,7 @@
         <v-card flat tile>
           <v-card-text>
             <v-container v-if="i==1">
+              <h2>  Gives user a recommended price to sell the car   </h2>
               <v-card flat class="mx-auto ma-auto mt-12" relative>
                 <v-row>
                   <v-select class="mr-12" :items="brandsML" v-model="selectedBrandML" label="Brand"></v-select>
@@ -49,6 +50,7 @@
             </v-container>
 
             <v-container v-if="i==2">
+              <h2>  Gives user a recommended car [list] for a given budget [range of +/- 50 euros]  </h2>
               <v-card flat class="mx-auto ma-auto mt-12" width="500px">
                 <v-select :items="brands" v-model="selectedBrand" label="Brand"></v-select>
 
@@ -66,10 +68,12 @@
             </v-container>
 
             <v-container v-if="i==3">
+              <h2 class="mb-5">  Displays a graph of car brands with their reliability indices  </h2>
               <v-btn tile color="orange" @click="reliability()">Reliability Index Chart</v-btn>
               <img v-if="pic_load" :src="src" />
             </v-container>
             <v-container v-if="i==4">
+              <h2 class="mb-5">  Gives user the amount he needs to pay every month for loan payment  </h2>
               <v-text-field v-model="principal" label="Enter principal (in Euros)"></v-text-field>
               <v-text-field v-model="term" label="Enter term (in months) "></v-text-field>
               <v-text-field v-model="interest" label="Enter interest (in %) "></v-text-field>
@@ -81,6 +85,7 @@
             </v-container>
 
             <v-container v-if="i==5">
+              <h2 class="mb-5">  Compares 2 brands on reliability index and average repair cost and generates a graph  </h2>
               <v-select
                 :items="brandscomparison"
                 v-model="selectedBrandComparison1"
@@ -89,7 +94,7 @@
               <v-select
                 :items="brandscomparison"
                 v-model="selectedBrandComparison2"
-                label="Brand 1"
+                label="Brand 2"
               ></v-select>
 
               <v-btn tile color="orange" @click="compare()">Compare</v-btn>

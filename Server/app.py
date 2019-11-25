@@ -116,7 +116,6 @@ def requires_auth(f):
     return decorated
 
 
-# might delete if we can't do for flask monitoring dashboard, then use config.cfg as config and edit there
 def requires_admin(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -304,7 +303,7 @@ class Cars(Resource):
 @api.route('/reliability')
 class Reliability(Resource):
     @api.response(200, 'Success')
-    @api.doc(description='Returns the top 10 most reliable car brands with their reliability indices')
+    @api.doc(description='Returns a graph of reliable car brands with their reliability indices')
     @requires_auth
     def get(self):
         rel_df = df[['brand','Reliability Index']]
