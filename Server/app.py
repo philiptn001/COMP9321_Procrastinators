@@ -155,7 +155,7 @@ username_parser.add_argument('username', type=str)
 class User(Resource):
     @api.response(200, 'user details get')
     @api.doc(description='retrieve username and password')
-    @requires_auth
+    @requires_admin
     def get(self):
         users = query_db('select user_id, username from Users ')
         users = jsonify(users)

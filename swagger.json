@@ -189,6 +189,18 @@
             }
         },
         "/session": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "successfully get current session"
+                    }
+                },
+                "description": "gets the current user login",
+                "operationId": "get_session",
+                "tags": [
+                    "Cars"
+                ]
+            },
             "post": {
                 "responses": {
                     "201": {
@@ -212,43 +224,29 @@
                 "tags": [
                     "Cars"
                 ]
-            },
-            "get": {
-                "responses": {
-                    "200": {
-                        "description": "successfully get current session"
-                    }
-                },
-                "description": "gets the current user login",
-                "operationId": "get_session",
-                "tags": [
-                    "Cars"
-                ]
-            }
-        },
-        "/statistics": {
-            "get": {
-                "responses": {
-                    "200": {
-                        "description": "Success"
-                    }
-                },
-                "description": "API usage statistics",
-                "operationId": "get_api_usage",
-                "tags": [
-                    "Cars"
-                ]
             }
         },
         "/user": {
-            "put": {
+            "get": {
                 "responses": {
                     "200": {
-                        "description": "User Grant Admin Access"
+                        "description": "user details get"
                     }
                 },
-                "description": "gives a user admin status",
-                "operationId": "put_user",
+                "description": "retrieve username and password",
+                "operationId": "get_user",
+                "tags": [
+                    "Cars"
+                ]
+            },
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "User deleted"
+                    }
+                },
+                "description": "deletes a user register from records",
+                "operationId": "delete_user",
                 "parameters": [
                     {
                         "name": "username",
@@ -284,33 +282,14 @@
                     "Cars"
                 ]
             },
-            "delete": {
+            "put": {
                 "responses": {
                     "200": {
-                        "description": "User deleted"
+                        "description": "User Grant Admin Access"
                     }
                 },
-                "description": "deletes a user register from records",
-                "operationId": "delete_user",
-                "parameters": [
-                    {
-                        "name": "username",
-                        "in": "query",
-                        "type": "string"
-                    }
-                ],
-                "tags": [
-                    "Cars"
-                ]
-            },
-            "get": {
-                "responses": {
-                    "200": {
-                        "description": "user details get"
-                    }
-                },
-                "description": "retrieve username and password",
-                "operationId": "get_user",
+                "description": "gives a user admin status",
+                "operationId": "put_user",
                 "parameters": [
                     {
                         "name": "username",
