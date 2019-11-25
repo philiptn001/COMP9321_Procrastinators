@@ -77,7 +77,12 @@ export default {
             }
           },
           error => {
-            console.log(error);
+           if (error.response) {
+            if (error.response.status == 401) {
+              alert("Wrong credentials!! Register user or try again.");
+              window.location.href = "/";
+            }
+          }
           }
         );
     }

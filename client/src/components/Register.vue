@@ -96,6 +96,7 @@ export default {
           response => {
             console.log(response);
             if(response.status == 200){
+               alert("Registered successfully");
               this.$router.push({
                   name: "login",
       });
