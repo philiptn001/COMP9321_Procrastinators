@@ -122,12 +122,12 @@ def requires_admin(f):
     def decorated(*args, **kwargs):
         token = request.headers.get('AUTH-TOKEN')
         if not token:
-            abort(401, 'Authentication token is missing')
+            abort(401, 'Authentication token is missing. Please login.')
         try:
             user = auth.validate_token(token)
             checkadmin = query_db('select username from Admins where username = ?', [user], one=True);
             if user not in checkadmin:
-                abort(403, 'Access Forbidden Error')
+                abort(403, 'Access Forbidden Error. Only Admin have access.')
             print(user)
         except SignatureExpired as e:
             abort(401, e.message)
@@ -153,16 +153,16 @@ username_parser.add_argument('username', type=str)
 # --------------------------API end points
 @api.route('/user')
 class User(Resource):
-    @api.response(200, 'user details get')
-    @api.doc(description='retrieve username and password')
+    @api.response(200, 'User details retrieved successfully')
+    @api.doc(description='Retrieve user_id and username. Needs Admin privilege')
     @requires_admin
     def get(self):
         users = query_db('select user_id, username from Users ')
         users = jsonify(users)
         return users
 
-    @api.response(201, 'user created')
-    @api.doc(description='creating a user')
+    @api.response(201, 'User created successfully')
+    @api.doc(description='Endpoint to create new user')
     @api.expect(credential_parser, validate=True)
     def post(self):
         args = credential_parser.parse_args()
@@ -175,10 +175,10 @@ class User(Resource):
         print(db)
         Base = get_db()
         Base.commit()
-        return {"message": "User created!"}
+        return {"message": "User created successfully!"}
 
     @api.response(200, 'User Grant Admin Access')
-    @api.doc(description='gives a user admin status')
+    @api.doc(description='Gives user admin access. Needs Admin privilege.')
     @api.expect(username_parser, validate=True)
     @requires_admin
     def put(self):
@@ -193,8 +193,8 @@ class User(Resource):
         # ----------------------------------------raise user to admin here
         return {'message': 'Access granted'}
 
-    @api.response(200, 'User deleted')
-    @api.doc(description='deletes a user register from records')
+    @api.response(200, 'User deleted successfully')
+    @api.doc(description='Delete a user from records. Needs Admin privilege.')
     @api.expect(username_parser, validate=True)
     @requires_admin
     def delete(self):
@@ -214,8 +214,9 @@ class User(Resource):
 
 @api.route('/user/<int:user_id>')
 class FindUser(Resource):
-    @api.response(200, 'User successfully return')
-    @api.doc(description='returns a username according to their id')
+    @api.response(200, 'Username returned successfully')
+    @api.doc(description='Returns a username according to their id. Needs Admin privilege.')
+    @requires_admin
     def get(self, user_id):
         userinfo = query_db('select user_id, username from Users where user_id = ?', [user_id], one=True)
         userinfo = jsonify(userinfo)
@@ -224,14 +225,13 @@ class FindUser(Resource):
 
 @api.route('/session')
 class Session(Resource):
-    @api.response(200, 'successfully get current session')
-    @api.doc(description='gets the current user login')
+    @api.response(200, 'Retrieved current user session')
+    @api.doc(description='Retrieves current user session')
+    @requires_auth
     def get(self):
         token = request.headers.get('AUTH-TOKEN')
         if not token:
-            abort(401, 'Authentication token is missing')
-        # due to programming  by contract, the session should be validated by @require_auth and always have a valid
-        # session
+            abort(401, 'Authentication token is missing. Please login.')
         user = auth.validate_token(token)
         return {'username': user}
 
@@ -242,7 +242,6 @@ class Session(Resource):
         args = credential_parser.parse_args()
         username = args.get('username')
         password = args.get('password')
-        # query database here, if username, then query if password is same  if nested if is true then return token
         checkuser = query_db('select password from Users where username = ?', [username], one=True);
         if checkuser is not None:
             if password == checkuser[0]:
