@@ -1,12 +1,20 @@
 <template>
   <div>
+    <v-row>
+      <v-btn
+        tile
+        outlined
+        style="position: fixed; right: 0;top:0;"
+        color="orange"
+        class="mt-1 mr-1"
+        @click="logOut()"
+      >logout</v-btn>
+    </v-row>
 
-    <v-btn tile outlined right color="orange" @click="logOut()"> logout</v-btn>
-   
     <v-tabs
       v-model="tab"
       background-color="deep-purple accent-4"
-      class="elevation-2 mt-2"
+      class="elevation-2 mt-12"
       dark
       :grow="true"
     >
@@ -18,7 +26,7 @@
         <v-card flat tile>
           <v-card-text>
             <v-container v-if="i==1">
-              <h2>  Gives user a recommended price to sell the car   </h2>
+              <h2>Gives user a recommended price to sell the car</h2>
               <v-card flat class="mx-auto ma-auto mt-12" relative>
                 <v-row>
                   <v-select class="mr-12" :items="brandsML" v-model="selectedBrandML" label="Brand"></v-select>
@@ -50,7 +58,7 @@
             </v-container>
 
             <v-container v-if="i==2">
-              <h2>  Gives user a recommended car [list] for a given budget [range of +/- 50 euros]  </h2>
+              <h2>Gives user a recommended car [list] for a given budget [range of +/- 50 euros]</h2>
               <v-card flat class="mx-auto ma-auto mt-12" width="500px">
                 <v-select :items="brands" v-model="selectedBrand" label="Brand"></v-select>
 
@@ -68,12 +76,12 @@
             </v-container>
 
             <v-container v-if="i==3">
-              <h2 class="mb-5">  Displays a graph of car brands with their reliability indices  </h2>
+              <h2 class="mb-5">Displays a graph of car brands with their reliability indices</h2>
               <v-btn tile color="orange" @click="reliability()">Reliability Index Chart</v-btn>
               <img v-if="pic_load" :src="src" />
             </v-container>
             <v-container v-if="i==4">
-              <h2 class="mb-5">  Gives user the amount he needs to pay every month for loan payment  </h2>
+              <h2 class="mb-5">Gives user the amount he needs to pay every month for loan payment</h2>
               <v-text-field v-model="principal" label="Enter principal (in Euros)"></v-text-field>
               <v-text-field v-model="term" label="Enter term (in months) "></v-text-field>
               <v-text-field v-model="interest" label="Enter interest (in %) "></v-text-field>
@@ -85,7 +93,9 @@
             </v-container>
 
             <v-container v-if="i==5">
-              <h2 class="mb-5">  Compares 2 brands on reliability index and average repair cost and generates a graph  </h2>
+              <h2
+                class="mb-5"
+              >Compares 3 brands on reliability index and average repair cost and generates a graph</h2>
               <v-select
                 :items="brandscomparison"
                 v-model="selectedBrandComparison1"
@@ -96,17 +106,44 @@
                 v-model="selectedBrandComparison2"
                 label="Brand 2"
               ></v-select>
+              <v-select
+                :items="brandscomparison"
+                v-model="selectedBrandComparison3"
+                label="Brand 3"
+              ></v-select>
 
               <v-btn tile color="orange" @click="compare()">Compare</v-btn>
 
               <v-card>
                 <v-card-title v-if="compare_load">
-                  {{selectedBrandComparison1}} has a reliability index of {{brand1_rel}} and an average repair cost of {{brand1_avgrep}} euros,
-                  {{selectedBrandComparison2}} has a reliability index of {{brand2_rel}} and an average repair cost of {{brand2_avgrep}} euros
+                  <v-card class="mr-8">
+                    <v-card-title class="indigo--text">{{selectedBrandComparison1}}</v-card-title>
+                    <h3 class="font-weight-light title ml-4 mr-4">
+                      Reliability index: {{brand1_rel}}
+                      <br />
+                      Average repair cost: {{brand1_avgrep}} euros
+                    </h3>
+                  </v-card>
+                  <v-card class="mr-8">
+                    <v-card-title class="indigo--text">{{selectedBrandComparison2}}</v-card-title>
+                    <h3 class="font-weight-light title ml-4 mr-4">
+                      Reliability index: {{brand2_rel}}
+                      <br />
+                      Average repair cost: {{brand2_avgrep}} euros
+                    </h3>
+                  </v-card>
+                  <v-card>
+                    <v-card-title class="indigo--text">{{selectedBrandComparison3}}</v-card-title>
+                    <h3 class="font-weight-light title ml-4 mr-4">
+                      Reliability index: {{brand3_rel}}
+                      <br />
+                      Average repair cost: {{brand3_avgrep}} euros
+                    </h3>
+                  </v-card>
                 </v-card-title>
                 <v-card-subtitle
                   v-if="compare_load"
-                  class="red--text"
+                  class="red--text mt-7"
                 >The Average of all cars is 100 which means that if the figure for the car you are looking at has a higher than average index it indicates that that car is less reliable than the average, if however there is a lower than average index the reliability is better.</v-card-subtitle>
               </v-card>
               <v-card>
@@ -164,6 +201,7 @@ export default {
       repairedDamageML: "",
       selectedBrandComparison1: "",
       selectedBrandComparison2: "",
+      selectedBrandComparison3: "",
       models: [],
       reliableCars: [],
       result: false,
@@ -310,8 +348,8 @@ export default {
   },
   methods: {
     logOut() {
-        this.token_login = ''
-        window.location.href = "/";
+      this.token_login = "";
+      window.location.href = "/";
     },
     carListSearch() {
       axios
@@ -432,7 +470,8 @@ export default {
 
           params: {
             Brand_1: this.selectedBrandComparison1,
-            Brand_2: this.selectedBrandComparison2
+            Brand_2: this.selectedBrandComparison2,
+            Brand_3: this.selectedBrandComparison3
           }
         })
         .then(response => {
@@ -459,7 +498,8 @@ export default {
           },
           params: {
             Brand_1: this.selectedBrandComparison1,
-            Brand_2: this.selectedBrandComparison2
+            Brand_2: this.selectedBrandComparison2,
+            Brand_3: this.selectedBrandComparison3
           }
         })
 
@@ -469,6 +509,8 @@ export default {
           this.brand1_avgrep = response.data.Brand_1_avgcost;
           this.brand2_rel = response.data.Brand_2_reliability;
           this.brand2_avgrep = response.data.Brand_2_avgcost;
+          this.brand3_rel = response.data.Brand_3_reliability;
+          this.brand3_avgrep = response.data.Brand_3_avgcost;
         })
         .catch(function(error) {
           if (error.response) {

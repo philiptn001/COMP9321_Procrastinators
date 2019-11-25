@@ -37,7 +37,7 @@
                         "description": "Success"
                     }
                 },
-                "description": "Compares 2 brands on their reliability index and average repair cost",
+                "description": "Compares 3 brands on their reliability index and average repair cost",
                 "operationId": "get_comparisons",
                 "parameters": [
                     {
@@ -47,6 +47,11 @@
                     },
                     {
                         "name": "Brand_2",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "Brand_3",
                         "in": "query",
                         "type": "string"
                     }
@@ -63,7 +68,7 @@
                         "description": "Success"
                     }
                 },
-                "description": "Compares 2 brands on reliability index and average repair cost and generates a graph",
+                "description": "Compares 3 brands on reliability index and average repair cost and generates a graph",
                 "operationId": "get_graphcomparisons",
                 "parameters": [
                     {
@@ -73,6 +78,11 @@
                     },
                     {
                         "name": "Brand_2",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "Brand_3",
                         "in": "query",
                         "type": "string"
                     }
@@ -181,7 +191,7 @@
                         "description": "Success"
                     }
                 },
-                "description": "Returns the top 10 most reliable car brands with their reliability indices",
+                "description": "Returns a graph of reliable car brands with their reliability indices",
                 "operationId": "get_reliability",
                 "tags": [
                     "Cars"
@@ -192,10 +202,10 @@
             "get": {
                 "responses": {
                     "200": {
-                        "description": "successfully get current session"
+                        "description": "Retrieved current user session"
                     }
                 },
-                "description": "gets the current user login",
+                "description": "Retrieves current user session",
                 "operationId": "get_session",
                 "tags": [
                     "Cars"
@@ -227,26 +237,14 @@
             }
         },
         "/user": {
-            "get": {
+            "put": {
                 "responses": {
                     "200": {
-                        "description": "user details get"
+                        "description": "User Grant Admin Access"
                     }
                 },
-                "description": "retrieve username and password",
-                "operationId": "get_user",
-                "tags": [
-                    "Cars"
-                ]
-            },
-            "delete": {
-                "responses": {
-                    "200": {
-                        "description": "User deleted"
-                    }
-                },
-                "description": "deletes a user register from records",
-                "operationId": "delete_user",
+                "description": "Gives user admin access. Needs Admin privilege.",
+                "operationId": "put_user",
                 "parameters": [
                     {
                         "name": "username",
@@ -258,13 +256,25 @@
                     "Cars"
                 ]
             },
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "User details retrieved successfully"
+                    }
+                },
+                "description": "Retrieve user_id and username. Needs Admin privilege",
+                "operationId": "get_user",
+                "tags": [
+                    "Cars"
+                ]
+            },
             "post": {
                 "responses": {
                     "201": {
-                        "description": "user created"
+                        "description": "User created successfully"
                     }
                 },
-                "description": "creating a user",
+                "description": "Endpoint to create new user",
                 "operationId": "post_user",
                 "parameters": [
                     {
@@ -282,14 +292,14 @@
                     "Cars"
                 ]
             },
-            "put": {
+            "delete": {
                 "responses": {
                     "200": {
-                        "description": "User Grant Admin Access"
+                        "description": "User deleted successfully"
                     }
                 },
-                "description": "gives a user admin status",
-                "operationId": "put_user",
+                "description": "Delete a user from records. Needs Admin privilege.",
+                "operationId": "delete_user",
                 "parameters": [
                     {
                         "name": "username",
@@ -314,10 +324,10 @@
             "get": {
                 "responses": {
                     "200": {
-                        "description": "User successfully return"
+                        "description": "Username returned successfully"
                     }
                 },
-                "description": "returns a username according to their id",
+                "description": "Returns a username according to their id. Needs Admin privilege.",
                 "operationId": "get_find_user",
                 "tags": [
                     "Cars"

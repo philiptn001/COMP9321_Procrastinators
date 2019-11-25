@@ -336,29 +336,35 @@ class Reliability(Resource):
 reliability_avgprice_parser = reqparse.RequestParser()
 reliability_avgprice_parser.add_argument('Brand_1', type=str)
 reliability_avgprice_parser.add_argument('Brand_2', type=str)
+reliability_avgprice_parser.add_argument('Brand_3', type=str)
+
 
 @api.route('/graphcomparisons')
 class Graphcomparisons(Resource):
     @api.response(200, 'Success')
-    @api.doc(description='Compares 2 brands on reliability index and average repair cost and generates a graph')
+    @api.doc(description='Compares 3 brands on reliability index and average repair cost and generates a graph')
     @api.expect(reliability_avgprice_parser, validate=True)
     @requires_auth
     def get(self):
         car = reliability_avgprice_parser.parse_args()
         user_brand_1 = car.get('Brand_1')
         user_brand_2 = car.get('Brand_2')
+        user_brand_3 = car.get('Brand_3')
         rel_df = df[['brand', 'Reliability Index', 'Average Repair Cost']]
         rel_df = rel_df[['brand', 'Reliability Index', 'Average Repair Cost']].drop_duplicates()
         data_brand_1 = rel_df.loc[rel_df['brand'] == user_brand_1]
         data_brand_2 = rel_df.loc[rel_df['brand'] == user_brand_2]
+        data_brand_3 = rel_df.loc[rel_df['brand'] == user_brand_3]
         reli_brand_1 = int(data_brand_1["Reliability Index"])
         reli_brand_2 = int(data_brand_2["Reliability Index"])
+        reli_brand_3 = int(data_brand_3["Reliability Index"])
         avg_repair_brand_1 = float(data_brand_1["Average Repair Cost"])
         avg_repair_brand_2 = float(data_brand_2["Average Repair Cost"])
+        avg_repair_brand_3 = float(data_brand_3["Average Repair Cost"])
 
-        reliability = [reli_brand_1, reli_brand_2]
-        repair = [avg_repair_brand_1, avg_repair_brand_2]
-        index = [user_brand_1, user_brand_2]
+        reliability = [reli_brand_1, reli_brand_2, reli_brand_3]
+        repair = [avg_repair_brand_1, avg_repair_brand_2, avg_repair_brand_3]
+        index = [user_brand_1, user_brand_2, user_brand_3]
         rel_df = pd.DataFrame({'Reliability': reliability,'Average Repair Cost': repair}, index=index)
         matplotlib.use('Agg')
         ax = rel_df.plot.bar(rot=0, color=['lightpink', 'skyblue'])
@@ -373,26 +379,34 @@ class Graphcomparisons(Resource):
 @api.route('/comparisons')
 class Comparisons(Resource):
     @api.response(200, 'Success')
-    @api.doc(description='Compares 2 brands on their reliability index and average repair cost')
+    @api.doc(description='Compares 3 brands on their reliability index and average repair cost')
     @api.expect(reliability_avgprice_parser, validate=True)
     @requires_auth
     def get(self):
         car = reliability_avgprice_parser.parse_args()
         user_brand_1 = car.get('Brand_1')
         user_brand_2 = car.get('Brand_2')
+        user_brand_3 = car.get('Brand_3')
         rel_df = df[['brand', 'Reliability Index', 'Average Repair Cost']]
         rel_df = rel_df[['brand', 'Reliability Index', 'Average Repair Cost']].drop_duplicates()
         data_brand_1 = rel_df.loc[rel_df['brand'] == user_brand_1]
         data_brand_2 = rel_df.loc[rel_df['brand'] == user_brand_2]
+        data_brand_3 = rel_df.loc[rel_df['brand'] == user_brand_3]
         reli_brand_1 = int(data_brand_1["Reliability Index"])
         reli_brand_2 = int(data_brand_2["Reliability Index"])
+        reli_brand_3 = int(data_brand_3["Reliability Index"])
         avg_repair_brand_1 = float(data_brand_1["Average Repair Cost"])
         avg_repair_brand_2 = float(data_brand_2["Average Repair Cost"])
+        avg_repair_brand_3 = float(data_brand_3["Average Repair Cost"])
         message = {
             'Brand_1_reliability': reli_brand_1,
             'Brand_1_avgcost': avg_repair_brand_1,
+
             'Brand_2_reliability': reli_brand_2,
-            'Brand_2_avgcost': avg_repair_brand_2
+            'Brand_2_avgcost': avg_repair_brand_2,
+
+             'Brand_3_reliability': reli_brand_3,
+            'Brand_3_avgcost': avg_repair_brand_3
         }
         message = jsonify(message) 
         return message
@@ -427,5 +441,4 @@ if __name__ == '__main__':
     #df = pd.read_csv("Server/data_preprocessing/preprocessed.csv")
     df = pd.read_csv("./data_preprocessing/preprocessed.csv")
     df['price'] = df['price'].astype('int')
-    #  df.set_index('name',inplace=True)
     app.run(port=9000, debug=True);  # debug to be turned off  when deployed
